@@ -1,10 +1,10 @@
-package xyz.riannegreiros.spring_nextjs_start_kit;
+package br.com.riannegreiros.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SpringNextjsStartKitApplicationTests {
+class BackendApplicationTests {
 
 	@Test
 	void contextLoads() {
