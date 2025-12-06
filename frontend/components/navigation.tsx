@@ -1,25 +1,72 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+
+interface UserData {
+  email: string;
+  name: string;
+  avatar_url: string;
+}
 
 export default function Navigation() {
-  const router = useRouter()
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<UserData | null>(null);
 
-  // Check if user is logged in from localStorage
   useEffect(() => {
-    const user = localStorage.getItem("user")
-    setIsLoggedIn(!!user)
-  }, [])
+    let mounted = true;
+    const checkAuth = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/auth/me", {
+          credentials: "include",
+        });
 
-  const handleLogout = () => {
-    localStorage.removeItem("user")
-    setIsLoggedIn(false)
-    router.push("/")
-  }
+        if (!mounted) return;
+
+        if (response.ok) {
+          const data = await response.json();
+          setIsLoggedIn(true);
+          const normalizedData: UserData = {
+            email: data.email,
+            name: data.name,
+            avatar_url: data.avatar_url || data.picture || "",
+          };
+          setUser(normalizedData);
+        } else {
+          setIsLoggedIn(false);
+          setUser(null);
+        }
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        setIsLoggedIn(false);
+        setUser(null);
+      }
+    };
+
+    checkAuth();
+    return () => { mounted = false; };
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        setIsLoggedIn(false);
+        setUser(null);
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <nav className="border-b border-border bg-card">
@@ -28,17 +75,29 @@ export default function Navigation() {
           MyApp
         </Link>
         <div className="flex gap-4 items-center">
-          <Link href="/" className="text-foreground hover:text-primary transition">
+          <Link
+            href="/"
+            className="text-foreground hover:text-primary transition"
+          >
             Home
           </Link>
-          {isLoggedIn ? (
+          {isLoggedIn && user ? (
             <>
-              <Link href="/profile" className="text-foreground hover:text-primary transition">
+              <Link
+                href="/profile"
+                className="text-foreground hover:text-primary transition"
+              >
                 Profile
               </Link>
-              <Button variant="outline" onClick={handleLogout}>
-                Logout
-              </Button>
+              <div className="flex items-center gap-2 pl-2 border-l border-border">
+                <Avatar>
+                  <AvatarImage src={user.avatar_url} alt={user.name} />
+                  <AvatarFallback>{user.email}</AvatarFallback>
+                </Avatar>
+                <Button variant="outline" onClick={handleLogout} size="sm">
+                  Logout
+                </Button>
+              </div>
             </>
           ) : (
             <Link href="/login">
@@ -48,5 +107,5 @@ export default function Navigation() {
         </div>
       </div>
     </nav>
-  )
+  );
 }
