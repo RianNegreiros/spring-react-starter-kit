@@ -1,4 +1,4 @@
-package br.com.riannegreiros.backend.dto.request;
+package br.com.riannegreiros.backend.users.dto.request;
 
 import jakarta.validation.constraints.NotEmpty;
 

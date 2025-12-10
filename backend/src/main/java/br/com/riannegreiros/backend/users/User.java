@@ -1,4 +1,4 @@
-package br.com.riannegreiros.backend.entity;
+package br.com.riannegreiros.backend.users;
 
 import java.util.Collection;
 import java.util.List;
@@ -6,22 +6,19 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import br.com.riannegreiros.backend.entity.AbstractEntity;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "users")
-@Data
-public class User implements UserDetails {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+@Getter
+@Setter
+@NoArgsConstructor
+public class User extends AbstractEntity implements UserDetails {
     private String name;
     private String email;
     private String password;
