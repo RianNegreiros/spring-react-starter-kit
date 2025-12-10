@@ -7,37 +7,62 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
 
 interface AuthContextType {
-  token: string | null;
-  email: string | null;
+  user: User | null;
   isLoading: boolean;
-  error: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, name: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
+}
+
+interface User {
+  id: number;
+  email: string;
+  name: string;
+  avatar_url?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(null);
-  const [email, setEmail] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    const savedToken = localStorage.getItem("token");
-    const savedEmail = localStorage.getItem("userEmail");
-    if (savedToken) {
-      setToken(savedToken);
-      setEmail(savedEmail);
-    }
+    fetchCurrentUser();
   }, []);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/auth/current", {
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const userData = data.data;
+        const normalizedUser = {
+          id: userData.id || userData.userId || userData.sub,
+          email: userData.email,
+          name: userData.name || userData.given_name || userData.login,
+          avatar_url: userData.avatar_url || userData.picture,
+        };
+        setUser(normalizedUser);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
-    setError(null);
     try {
       const response = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
@@ -47,24 +72,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!response.ok) {
-        try {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Login failed");
-        } catch (err) {
-          throw new Error(err instanceof Error ? err.message : "Login failed");
-        }
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Login failed");
       }
 
-      const data = await response.json();
-      setToken(data.token);
-      setEmail(email);
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userEmail", email);
-      console.log(data);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Login failed";
-      setError(message);
-      throw err;
+      await fetchCurrentUser();
+      router.push("/profile");
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +85,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (email: string, name: string, password: string) => {
     setIsLoading(true);
-    setError(null);
     try {
       const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
@@ -82,37 +94,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!response.ok) {
-        try {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Registration failed");
-        } catch (err) {
-          throw new Error(
-            err instanceof Error ? err.message : "Registration failed",
-          );
-        }
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Registration failed");
       }
 
       await login(email, password);
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Registration failed";
-      setError(message);
-      throw err;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    setToken(null);
-    setEmail(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("userEmail");
+  const logout = async () => {
+    try {
+      await fetch("http://localhost:8080/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setUser(null);
+    }
   };
 
   return (
     <AuthContext.Provider
-      value={{ token, email, isLoading, error, login, register, logout }}
+      value={{ user, isLoading, login, register, logout }}
     >
       {children}
     </AuthContext.Provider>

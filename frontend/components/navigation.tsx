@@ -3,69 +3,17 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-
-interface UserData {
-  email: string;
-  name: string;
-  avatar_url: string;
-}
+import { useAuth } from "@/lib/auth-context";
 
 export default function Navigation() {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<UserData | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-    const checkAuth = async () => {
-      try {
-        const response = await fetch("http://localhost:8080/api/auth/me", {
-          credentials: "include",
-        });
-
-        if (!mounted) return;
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log(response);
-          setIsLoggedIn(true);
-          const normalizedData: UserData = {
-            email: data.email,
-            name: data.name,
-            avatar_url: data.avatar_url || data.picture || "",
-          };
-          setUser(normalizedData);
-        } else {
-          setIsLoggedIn(false);
-          setUser(null);
-        }
-      } catch (err) {
-        console.log(err);
-        setIsLoggedIn(false);
-        setUser(null);
-      }
-    };
-
-    checkAuth();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const { user, logout, isLoading } = useAuth();
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        setIsLoggedIn(false);
-        setUser(null);
-        router.push("/");
-      }
+      await logout();
+      router.push("/");
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -84,7 +32,7 @@ export default function Navigation() {
           >
             Home
           </Link>
-          {isLoggedIn && user ? (
+          {!isLoading && user ? (
             <>
               <Link
                 href="/profile"
@@ -94,19 +42,20 @@ export default function Navigation() {
               </Link>
               <div className="flex items-center gap-2 pl-2 border-l border-border">
                 <Avatar>
-                  <AvatarImage src={user.avatar_url} alt={user.name} />
-                  <AvatarFallback>{user.email}</AvatarFallback>
+                  {user.avatar_url && <AvatarImage src={user.avatar_url} alt={user.name} />}
+                  <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
+                <span className="text-sm text-foreground">{user.name}</span>
                 <Button variant="outline" onClick={handleLogout} size="sm">
                   Logout
                 </Button>
               </div>
             </>
-          ) : (
+          ) : !isLoading ? (
             <Link href="/login">
               <Button>Login</Button>
             </Link>
-          )}
+          ) : null}
         </div>
       </div>
     </nav>

@@ -1,60 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-interface UserData {
-  email: string;
-  name: string;
-  avatar_url: string;
-}
+import { useAuth } from "@/lib/auth-context";
 
 export default function ProfileCard() {
-  const router = useRouter();
-  const [user, setUser] = useState<UserData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const response = await fetch("http://localhost:8080/api/auth/me", {
-          credentials: "include",
-        });
-        if (response.ok) {
-          try {
-            const data = await response.json();
-            const normalizedData: UserData = {
-              email: data.email,
-              name: data.name,
-              avatar_url: data.avatar_url || data.picture || "",
-            };
-            setUser(normalizedData);
-            console.log(data);
-          } catch {
-            router.push("/login");
-          }
-        } else {
-          router.push("/login");
-        }
-      } catch {
-        router.push("/login");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchUser();
-  }, [router]);
-
-  if (isLoading) {
-    return (
-      <main className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </main>
-    );
-  }
+  const { user } = useAuth();
 
   if (!user) {
     return null;
@@ -65,8 +16,8 @@ export default function ProfileCard() {
       <div className="max-w-4xl mx-auto px-4 py-12">
         <div className="flex items-center gap-6 mb-8">
           <Avatar className="w-24 h-24">
-            <AvatarImage src={user.avatar_url} alt={user.name} />
-            <AvatarFallback>{user.email}</AvatarFallback>
+            {user.avatar_url && <AvatarImage src={user.avatar_url} alt={user.name} />}
+            <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-4xl font-bold text-foreground">Profile</h1>
@@ -93,9 +44,6 @@ export default function ProfileCard() {
                 </label>
                 <p className="text-lg text-foreground mt-1">{user.name}</p>
               </div>
-              {/*<Button variant="outline" className="w-full bg-transparent">
-                Edit Profile
-              </Button>*/}
             </CardContent>
           </Card>
         </div>

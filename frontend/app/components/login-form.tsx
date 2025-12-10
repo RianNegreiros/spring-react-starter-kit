@@ -12,26 +12,32 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth-context";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const { login, isLoading } = useAuth();
-  const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [oauthError, setOauthError] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('error') === 'true') {
+      setOauthError(true);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await login(email, password);
-      router.push("/profile");
     } catch (err) {
-      console.log(err);
+      // Error is handled by auth context
     }
   };
 
@@ -53,6 +59,11 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {oauthError && (
+            <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded">
+              OAuth login failed. Please try again.
+            </div>
+          )}
           <form onSubmit={handleSubmit}>
             <FieldGroup>
               <Field>
