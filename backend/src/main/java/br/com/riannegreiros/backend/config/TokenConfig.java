@@ -3,6 +3,7 @@ package br.com.riannegreiros.backend.config;
 import java.time.Instant;
 import java.util.Optional;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,37 @@ public class TokenConfig {
                 .withExpiresAt(Instant.now().plusSeconds(86400))
                 .withIssuedAt(Instant.now())
                 .sign(algorithm);
+    }
+
+    public String extractUsername(String token) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secretKey);
+            DecodedJWT decodedJWT = JWT.require(algorithm).build().verify(token);
+            return decodedJWT.getSubject();
+        } catch (JWTVerificationException e) {
+            log.debug("Failed to extract username from token", e);
+            return null;
+        }
+    }
+
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        try {
+            String username = extractUsername(token);
+            return username != null && username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        } catch (Exception e) {
+            log.debug("Token validation failed", e);
+            return false;
+        }
+    }
+
+    private boolean isTokenExpired(String token) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secretKey);
+            DecodedJWT decodedJWT = JWT.require(algorithm).build().verify(token);
+            return decodedJWT.getExpiresAt().before(java.util.Date.from(Instant.now()));
+        } catch (JWTVerificationException e) {
+            return true;
+        }
     }
 
     public Optional<JWTUserData> validateToken(String token) {

@@ -66,6 +66,13 @@ public class UserService {
                     userData.name()));
         }
 
+        if (principal instanceof User user) {
+            return Optional.of(new UserResponse(
+                    user.getId(),
+                    user.getEmail(),
+                    user.getName()));
+        }
+
         return Optional.empty();
     }
 }

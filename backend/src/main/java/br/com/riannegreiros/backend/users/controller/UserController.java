@@ -9,15 +9,17 @@ import br.com.riannegreiros.backend.users.dto.request.UserRegisterRequest;
 import br.com.riannegreiros.backend.util.ApiResponse;
 import br.com.riannegreiros.backend.users.dto.response.LoginResponse;
 import br.com.riannegreiros.backend.users.dto.response.UserRegisterResponse;
-import br.com.riannegreiros.backend.users.dto.response.UserResponse;
 import br.com.riannegreiros.backend.users.service.AuthService;
 import br.com.riannegreiros.backend.users.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
-import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,30 +40,31 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getOAuthUser(
-            @AuthenticationPrincipal OAuth2User user) {
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error("Not authenticated"));
+    @GetMapping("/current")
+    public ResponseEntity<ApiResponse<Object>> getCurrentUser(@AuthenticationPrincipal OAuth2User oauthUser) {
+        if (oauthUser != null) {
+            return ResponseEntity.ok(ApiResponse.success(oauthUser.getAttributes(), "OAuth user data"));
         }
 
-        return ResponseEntity.ok(ApiResponse.success(user.getAttributes(), "OAuth user data"));
-    }
-
-    @GetMapping("/current")
-    public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
         return userService.getCurrentUser()
-                .map(user -> ResponseEntity.ok(ApiResponse.success(user)))
+                .map(user -> ResponseEntity.ok(ApiResponse.success((Object) user)))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(ApiResponse.error("User not authenticated")));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request,
+            HttpServletResponse response) {
         log.info("Login request received for email: {}", request.email());
 
         LoginResponse loginResponse = authService.authenticate(request);
+
+        Cookie cookie = new Cookie("auth_token", loginResponse.token());
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setMaxAge(86400);
+        cookie.setPath("/");
+        response.addCookie(cookie);
 
         return ResponseEntity.ok(ApiResponse.success(loginResponse, "Login successful"));
     }
@@ -80,5 +83,21 @@ public class UserController {
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logout(
+            HttpServletRequest request,
+            HttpServletResponse response) {
+
+        Cookie authCookie = new Cookie("auth_token", "");
+        authCookie.setMaxAge(0);
+        authCookie.setPath("/");
+        authCookie.setHttpOnly(true);
+        response.addCookie(authCookie);
+
+        SecurityContextHolder.clearContext();
+
+        return ResponseEntity.ok(ApiResponse.success("Logged out successfully"));
     }
 }

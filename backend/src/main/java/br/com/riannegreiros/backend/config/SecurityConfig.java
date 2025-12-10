@@ -18,6 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import br.com.riannegreiros.backend.filters.JwtAuthenticationFilter;
+import br.com.riannegreiros.backend.filters.CookieAuthenticationFilter;
 
 import java.util.Arrays;
 
@@ -27,9 +28,11 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter securityFilter;
+    private final CookieAuthenticationFilter cookieAuthenticationFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter securityFilter) {
+    public SecurityConfig(JwtAuthenticationFilter securityFilter, CookieAuthenticationFilter cookieAuthenticationFilter) {
         this.securityFilter = securityFilter;
+        this.cookieAuthenticationFilter = cookieAuthenticationFilter;
     }
 
     @Bean
@@ -63,7 +66,8 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated())
 
-                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(cookieAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(securityFilter, CookieAuthenticationFilter.class)
 
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
@@ -81,7 +85,7 @@ public class SecurityConfig {
                         })
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID")
+                        .deleteCookies("JSESSIONID", "auth_token")
                         .permitAll());
 
         return http.build();
