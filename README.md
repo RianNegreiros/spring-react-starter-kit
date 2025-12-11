@@ -68,6 +68,13 @@ spring-nextjs-start-kit/
 - Spring Security integration
 - Password validation
 
+### Avatar Management
+
+- User avatar upload (JPEG, PNG, GIF, WebP)
+- File size validation (max 5MB)
+- Avatar deletion
+- Real-time UI updates
+
 ## Quick Start
 
 ### Prerequisites
@@ -129,6 +136,12 @@ docker-compose up postgres -d
 - `POST /api/auth/login` - User login
 - `POST /api/auth/logout` - User logout
 - `GET /api/auth/current` - Get current user
+- `PUT /api/auth/profile` - Up date user profile
+
+### Avatar Endpoints
+
+- `POST /api/avatar` - Upload user avatar (multipart/form-data)
+- `DELETE /api/avatar` - Delete user avatar
 
 ## Configuration
 
@@ -149,10 +162,4 @@ spring.security.oauth2.client.registration.google.client-secret=your-client-secr
 # Database (Postgres)
 # Change 'postgres' to 'localhost' if using docker
 spring.datasource.url=jdbc:postgresql://postgres:5432/backend_db
-```
-
-#### Frontend (`.env.local`)
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8080
 ```

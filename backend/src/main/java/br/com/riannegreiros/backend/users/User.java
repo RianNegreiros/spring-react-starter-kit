@@ -19,10 +19,15 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class User extends AbstractEntity implements UserDetails {
-    private String name;
+    private String firstName;
+    private String lastName;
     private String email;
     private String password;
     private String avatarUrl;
+
+    public String getName() {
+        return firstName + " " + lastName;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

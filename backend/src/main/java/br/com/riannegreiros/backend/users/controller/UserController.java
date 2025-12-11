@@ -7,9 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import br.com.riannegreiros.backend.users.dto.request.LoginRequest;
 import br.com.riannegreiros.backend.users.dto.request.UserRegisterRequest;
+import br.com.riannegreiros.backend.users.dto.request.UserUpdateRequest;
 import br.com.riannegreiros.backend.util.ApiResponse;
 import br.com.riannegreiros.backend.users.dto.response.LoginResponse;
 import br.com.riannegreiros.backend.users.dto.response.UserRegisterResponse;
+import br.com.riannegreiros.backend.users.dto.response.UserResponse;
 import br.com.riannegreiros.backend.users.service.AuthService;
 import br.com.riannegreiros.backend.users.service.UserService;
 import jakarta.servlet.http.Cookie;
@@ -24,6 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -84,6 +87,14 @@ public class UserController {
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<ApiResponse<UserResponse>> updateProfile(
+            @Valid @RequestBody UserUpdateRequest request) {
+        
+        UserResponse response = userService.updateUser(request);
+        return ResponseEntity.ok(ApiResponse.success(response, "Profile updated successfully"));
     }
 
     @PostMapping("/logout")
