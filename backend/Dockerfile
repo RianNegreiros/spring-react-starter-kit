@@ -1,14 +1,20 @@
-FROM eclipse-temurin:21-alpine
-
+FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 
-COPY pom.xml .
+# Copy Maven wrapper and make it executable
 COPY mvnw .
 COPY .mvn .mvn
-
 RUN chmod +x mvnw
-RUN ./mvnw dependency:go-offline
 
-EXPOSE 8080
+# Copy pom.xml and download dependencies (cached layer)
+COPY pom.xml .
+RUN ./mvnw dependency:go-offline -B
 
-CMD ["./mvnw", "spring-boot:run"]
+# Copy source code
+COPY src ./src
+
+# Expose application and debug ports
+EXPOSE 8080 5005
+
+# Run with debug enabled
+CMD ["./mvnw", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"]

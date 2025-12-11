@@ -24,8 +24,9 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ../backend/src:/app/src
-      - ../backend/target:/app/target
+      - ~/.config/gcloud/application_default_credentials.json:/app/gcp-credentials.json:ro
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/gcp-credentials.json
     depends_on:
       postgres:
         condition: service_healthy
@@ -42,7 +43,7 @@ services:
       - ../frontend:/app
       - /app/node_modules
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - NEXT_PUBLIC_API_URL=http://backend:8080
     depends_on:
       - backend
     networks:

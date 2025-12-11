@@ -1,0 +1,31 @@
+# Build outputs
+target/
+build/
+*.jar
+*.war
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+.settings/
+.project
+.classpath
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docs
+README.md
+*.md
+
+# Logs
+*.log
+
+# Test reports
+surefire-reports/
