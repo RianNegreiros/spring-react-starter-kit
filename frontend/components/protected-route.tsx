@@ -30,7 +30,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!user) {
-    return null; // Will redirect to login
+    return null;
   }
 
   return <>{children}</>;

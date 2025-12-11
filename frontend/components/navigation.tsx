@@ -42,10 +42,14 @@ export default function Navigation() {
               </Link>
               <div className="flex items-center gap-2 pl-2 border-l border-border">
                 <Avatar>
-                  {user.avatar_url && <AvatarImage src={user.avatar_url} alt={user.name} />}
-                  <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                  {user.avatar_url && (
+                    <AvatarImage src={user.avatar_url} alt={user.name || user.email} />
+                  )}
+                  <AvatarFallback>
+                    {(user.name || user.email)[0].toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
-                <span className="text-sm text-foreground">{user.name}</span>
+                <span className="text-sm text-foreground">{user.name || user.email}</span>
                 <Button variant="outline" onClick={handleLogout} size="sm">
                   Logout
                 </Button>

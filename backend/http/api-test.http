@@ -1,5 +1,7 @@
 @baseURL=http://localhost:8080/api
 @email=john.doe@example.com
+@firstName=John
+@lastName=Doe
 @password=password123
 
 ### Register a new user
@@ -7,7 +9,8 @@ POST {{baseURL}}/auth/register
 Content-Type: application/json
 
 {
-  "name": "John Doe",
+  "firstName": "{{firstName}}",
+  "lastName": "{{lastName}}",
   "email": "{{email}}",
   "password": "{{password}}"
 }
@@ -24,5 +27,38 @@ Content-Type: application/json
 
 ### Get current user data
 GET {{baseURL}}/auth/current
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+### Update user profile
+PUT {{baseURL}}/auth/profile
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: application/json
+
+{
+  "firstName": "John Updated",
+  "lastName": "Doe Updated",
+  "email": "{{email}}"
+}
+
+### Upload avatar
+POST {{baseURL}}/avatar
+Authorization: Bearer {{login.response.body.data.token}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="avatar.png"
+Content-Type: image/png
+
+< ./avatar.png
+--boundary--
+
+### Delete avatar
+DELETE {{baseURL}}/avatar
+Authorization: Bearer {{login.response.body.data.token}}
+Accept: application/json
+
+### Logout user
+POST {{baseURL}}/auth/logout
 Authorization: Bearer {{login.response.body.data.token}}
 Accept: application/json

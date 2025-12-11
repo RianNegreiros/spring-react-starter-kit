@@ -11,6 +11,7 @@ import br.com.riannegreiros.backend.config.JWTUserData;
 import br.com.riannegreiros.backend.config.TokenConfig;
 import br.com.riannegreiros.backend.users.User;
 import br.com.riannegreiros.backend.users.dto.request.UserRegisterRequest;
+import br.com.riannegreiros.backend.users.dto.request.UserUpdateRequest;
 import br.com.riannegreiros.backend.users.dto.response.UserRegisterResponse;
 import br.com.riannegreiros.backend.users.dto.response.UserResponse;
 import br.com.riannegreiros.backend.users.repository.UserRepository;
@@ -38,7 +39,8 @@ public class UserService {
 
         User newUser = new User();
         newUser.setEmail(request.email());
-        newUser.setName(request.name());
+        newUser.setFirstName(request.firstName());
+        newUser.setLastName(request.lastName());
         newUser.setPassword(passwordEncoder.encode(request.password()));
 
         User savedUser = userRepository.save(newUser);
@@ -60,19 +62,66 @@ public class UserService {
         Object principal = auth.getPrincipal();
 
         if (principal instanceof JWTUserData userData) {
-            return Optional.of(new UserResponse(
-                    userData.userId(),
-                    userData.email(),
-                    userData.name()));
+            User user = userRepository.findById(userData.userId()).orElse(null);
+            if (user != null) {
+                return Optional.of(new UserResponse(
+                        userData.userId().toString(),
+                        userData.email(),
+                        userData.name(),
+                        user.getAvatarUrl()));
+            }
         }
 
         if (principal instanceof User user) {
             return Optional.of(new UserResponse(
-                    user.getId(),
+                    user.getId().toString(),
                     user.getEmail(),
-                    user.getName()));
+                    user.getName(),
+                    user.getAvatarUrl()));
         }
 
         return Optional.empty();
+    }
+
+    public UserResponse updateUser(UserUpdateRequest request) {
+        User user = getCurrentUserEntity();
+        
+        if (!user.getEmail().equals(request.email()) && userRepository.existsByEmail(request.email())) {
+            throw new EmailAlreadyExistsException(request.email());
+        }
+        
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setEmail(request.email());
+        
+        User savedUser = userRepository.save(user);
+        
+        return new UserResponse(
+                savedUser.getId().toString(),
+                savedUser.getEmail(),
+                savedUser.getName(),
+                savedUser.getAvatarUrl()
+        );
+    }
+
+    public User getCurrentUserEntity() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new RuntimeException("User not authenticated");
+        }
+
+        Object principal = auth.getPrincipal();
+
+        if (principal instanceof JWTUserData userData) {
+            return userRepository.findById(userData.userId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+        }
+
+        if (principal instanceof User user) {
+            return user;
+        }
+
+        throw new RuntimeException("Invalid authentication principal");
     }
 }

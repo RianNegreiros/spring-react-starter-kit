@@ -23,7 +23,8 @@ export function RegisterForm({
   const { register, isLoading } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [localError, setLocalError] = useState("");
@@ -43,7 +44,7 @@ export function RegisterForm({
     }
 
     try {
-      await register(email, name, password);
+      await register(email, firstName, lastName, password);
       router.push("/profile");
     } catch (err) {
       console.log(err);
@@ -68,17 +69,35 @@ export function RegisterForm({
 
               <Field>
                 <label
-                  htmlFor="name"
+                  htmlFor="firstName"
                   className="block text-sm font-medium mb-2"
                 >
-                  Full Name
+                  First Name
                 </label>
                 <Input
-                  id="name"
+                  id="firstName"
                   type="text"
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  placeholder="John"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </Field>
+
+              <Field>
+                <label
+                  htmlFor="lastName"
+                  className="block text-sm font-medium mb-2"
+                >
+                  Last Name
+                </label>
+                <Input
+                  id="lastName"
+                  type="text"
+                  placeholder="Doe"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
                   required
                   disabled={isLoading}
                 />

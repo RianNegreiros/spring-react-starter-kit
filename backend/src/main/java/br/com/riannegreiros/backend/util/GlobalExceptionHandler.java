@@ -12,6 +12,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 
 import br.com.riannegreiros.backend.util.exceptions.ApiException;
 
@@ -119,6 +121,36 @@ public class GlobalExceptionHandler {
                         LocalDateTime.now(),
                         false,
                         ex.getMessage(),
+                        null,
+                        null));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMaxSizeException(
+            MaxUploadSizeExceededException ex, WebRequest request) {
+
+        log.warn("File upload size exceeded: {}", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE)
+                .body(new ApiResponse<>(
+                        LocalDateTime.now(),
+                        false,
+                        "File too large. Maximum size allowed is 5MB",
+                        null,
+                        null));
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMultipartException(
+            MultipartException ex, WebRequest request) {
+
+        log.warn("Multipart file error: {}", ex.getMessage());
+
+        return ResponseEntity.badRequest()
+                .body(new ApiResponse<>(
+                        LocalDateTime.now(),
+                        false,
+                        "Invalid file format or corrupted file",
                         null,
                         null));
     }

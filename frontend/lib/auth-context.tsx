@@ -12,9 +12,12 @@ import { useRouter } from "next/navigation";
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  error: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, name: string, password: string) => Promise<void>;
+  register: (email: string, firstName: string, lastName: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
+  clearError: () => void;
 }
 
 interface User {
@@ -29,11 +32,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     fetchCurrentUser();
   }, []);
+
+  const clearError = () => setError(null);
 
   const fetchCurrentUser = async () => {
     try {
@@ -48,13 +54,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           id: userData.id || userData.userId || userData.sub,
           email: userData.email,
           name: userData.name || userData.given_name || userData.login,
-          avatar_url: userData.avatar_url || userData.picture,
+          avatar_url: userData.avatarUrl || userData.avatar_url || userData.picture,
         };
         setUser(normalizedUser);
+        setError(null);
       } else {
         setUser(null);
       }
     } catch (error) {
+      console.error("Failed to fetch current user:", error);
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -63,6 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
+    setError(null);
+    
     try {
       const response = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
@@ -72,39 +82,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Login failed");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Login failed: ${response.status}`);
       }
 
       await fetchCurrentUser();
       router.push("/profile");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Login failed";
+      setError(message);
+      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (email: string, name: string, password: string) => {
+  const register = async (email: string, firstName: string, lastName: string, password: string) => {
     setIsLoading(true);
+    setError(null);
+    
     try {
       const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name, password }),
+        body: JSON.stringify({ email, firstName, lastName, password }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Registration failed");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Registration failed: ${response.status}`);
       }
 
       await login(email, password);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Registration failed";
+      setError(message);
+      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
   const logout = async () => {
+    setError(null);
+    
     try {
       await fetch("http://localhost:8080/api/auth/logout", {
         method: "POST",
@@ -112,6 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     } catch (error) {
       console.error("Logout error:", error);
+      setError("Logout failed, but you will be signed out locally");
     } finally {
       setUser(null);
     }
@@ -119,7 +142,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, login, register, logout }}
+      value={{ 
+        user, 
+        isLoading, 
+        error, 
+        login, 
+        register, 
+        logout, 
+        refreshUser: fetchCurrentUser,
+        clearError 
+      }}
     >
       {children}
     </AuthContext.Provider>

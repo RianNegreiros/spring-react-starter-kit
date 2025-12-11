@@ -1,7 +1,8 @@
 package br.com.riannegreiros.backend.users.dto.response;
 
 public record UserResponse(
-        Long userId,
+        String userId,
         String email,
-        String name) {
+        String name,
+        String avatarUrl) {
 }

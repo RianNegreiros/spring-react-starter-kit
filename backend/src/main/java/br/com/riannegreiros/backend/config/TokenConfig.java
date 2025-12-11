@@ -3,6 +3,7 @@ package br.com.riannegreiros.backend.config;
 import java.time.Instant;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
@@ -20,10 +21,8 @@ public class TokenConfig {
 
     private static final Logger log = LoggerFactory.getLogger(TokenConfig.class);
 
-    private final String secretKey = "my_very_secure_secret_key_that_is_long_enough_for_hmac256"; // TODO: Use
-                                                                                                  // environment
-                                                                                                  // variable in
-                                                                                                  // production
+    @Value("${jwt.secret}")
+    private String secretKey;
 
     public String generateToken(User user) {
         Algorithm algorithm = Algorithm.HMAC256(secretKey);

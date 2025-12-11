@@ -30,7 +30,8 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter securityFilter;
     private final CookieAuthenticationFilter cookieAuthenticationFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter securityFilter, CookieAuthenticationFilter cookieAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter securityFilter,
+            CookieAuthenticationFilter cookieAuthenticationFilter) {
         this.securityFilter = securityFilter;
         this.cookieAuthenticationFilter = cookieAuthenticationFilter;
     }
@@ -59,8 +60,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/register").permitAll()
                         .requestMatchers("/api/auth/logout").permitAll()
-                        .requestMatchers("/api/test/health").permitAll()
-                        .requestMatchers("/api/test/headers").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/oauth2/**", "/login/**").permitAll()
 
