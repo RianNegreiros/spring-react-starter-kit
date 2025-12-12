@@ -25,10 +25,6 @@ public class User extends AbstractEntity implements UserDetails {
     private String password;
     private String avatarUrl;
 
-    public String getName() {
-        return firstName + " " + lastName;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();

@@ -1,5 +1,6 @@
 package br.com.riannegreiros.backend.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,9 @@ import java.util.Arrays;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     private final JwtAuthenticationFilter securityFilter;
     private final CookieAuthenticationFilter cookieAuthenticationFilter;
 
@@ -40,7 +44,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000"));
+                frontendUrl));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
@@ -70,8 +74,8 @@ public class SecurityConfig {
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
 
                 .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("http://localhost:3000/profile", true)
-                        .failureUrl("http://localhost:3000/login?error=true"))
+                        .defaultSuccessUrl(frontendUrl + "/profile", true)
+                        .failureUrl(frontendUrl + "/login?error=true"))
 
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/logout")

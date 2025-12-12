@@ -48,7 +48,8 @@ public class UserService {
 
         return new UserRegisterResponse(
                 token,
-                savedUser.getName(),
+                savedUser.getFirstName(),
+                savedUser.getLastName(),
                 savedUser.getEmail());
     }
 
@@ -67,7 +68,8 @@ public class UserService {
                 return Optional.of(new UserResponse(
                         userData.userId().toString(),
                         userData.email(),
-                        userData.name(),
+                        userData.firstName(),
+                        userData.lastName(),
                         user.getAvatarUrl()));
             }
         }
@@ -76,7 +78,8 @@ public class UserService {
             return Optional.of(new UserResponse(
                     user.getId().toString(),
                     user.getEmail(),
-                    user.getName(),
+                    user.getFirstName(),
+                    user.getLastName(),
                     user.getAvatarUrl()));
         }
 
@@ -85,23 +88,23 @@ public class UserService {
 
     public UserResponse updateUser(UserUpdateRequest request) {
         User user = getCurrentUserEntity();
-        
+
         if (!user.getEmail().equals(request.email()) && userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException(request.email());
         }
-        
+
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setEmail(request.email());
-        
+
         User savedUser = userRepository.save(user);
-        
+
         return new UserResponse(
                 savedUser.getId().toString(),
                 savedUser.getEmail(),
-                savedUser.getName(),
-                savedUser.getAvatarUrl()
-        );
+                savedUser.getFirstName(),
+                savedUser.getLastName(),
+                savedUser.getAvatarUrl());
     }
 
     public User getCurrentUserEntity() {
