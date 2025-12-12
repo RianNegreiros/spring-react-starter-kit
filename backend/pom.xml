@@ -12,7 +12,7 @@
 	<artifactId>backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>backend</name>
-	<description>Spring NextJs Start Kit</description>
+	<description>Spring React Starter Kit</description>
 	<url/>
 	<licenses>
 		<license/>

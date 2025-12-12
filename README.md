@@ -1,79 +1,18 @@
-# Spring Boot + Next.js Starter Kit
+# Spring Boot + React Starter Kit
 
-A full-stack web application starter kit combining Spring Boot backend with Next.js frontend, featuring authentication and Docker containerization.
+Full-stack web application with Spring Boot backend and React frontend.
 
 ## Tech Stack
 
-### Backend
+**Backend:** Spring Boot 4, Java 21, PostgreSQL, JWT Auth, OAuth2  
+**Frontend:** React, TypeScript, Tailwind CSS, Vite  
+**Infrastructure:** Docker Compose
 
-- **Spring Boot 4** - Java framework
-- **Java 21** - LTS version of Java
-- **Spring Security** - Authentication and authorization
-- **Spring Data JPA** - Data persistence layer
-- **PostgreSQL** - Primary database
-- **Flyway** - Database migration tool
-- **JWT** - Token-based authentication
-- **Lombok** - Reduces boilerplate code
-- **Maven** - Dependency management
+## Features
 
-### Frontend
-
-- **Next.js 16** - React framework
-- **TypeScript** - Type-safe JavaScript
-- **Tailwind CSS 4** - Utility-first CSS framework
-- **Radix UI** - Accessible component primitives
-- **Shadcn/ui** - Modern UI components
-- **Next Themes** - Dark/light mode support
-
-### Infrastructure
-
-- **Docker & Docker Compose** - Containerization
-
-## Project Structure
-
-```bash
-spring-nextjs-start-kit/
-├── backend/                 # Spring Boot application
-│   ├── src/main/java/      # Java source code
-│   │   └── br/com/riannegreiros/backend/
-│   │       ├── config/     # Security & JWT configuration
-│   │       ├── entity/     # JPA entities
-│   │       ├── filters/    # Authentication filters
-│   │       ├── users/      # User management module
-│   │       └── util/       # Utilities & exception handling
-│   ├── src/main/resources/ # Application properties & migrations
-│   ├── pom.xml            # Maven dependencies
-│   └── Dockerfile         # Backend container config
-├── frontend/               # Next.js application
-│   ├── app/               # App Router pages
-│   ├── components/        # Reusable UI components
-│   ├── hooks/            # Custom React hooks
-│   ├── lib/              # Utilities & context
-│   ├── public/           # Static assets
-│   ├── package.json      # Node.js dependencies
-│   └── Dockerfile        # Frontend container config
-├── infra/                # Infrastructure configuration
-│   └── docker-compose.yml # Multi-container setup
-└── README.md             # Project documentation
-```
-
-## 🛠️ Features
-
-### Authentication & Security
-
-- JWT-based authentication
-- Cookie-based session management
-- User registration and login
-- Protected routes
-- Spring Security integration
-- Password validation
-
-### Avatar Management
-
-- User avatar upload (JPEG, PNG, GIF, WebP)
-- File size validation (max 5MB)
-- Avatar deletion
-- Real-time UI updates
+- User authentication (JWT + OAuth2)
+- Avatar upload/management
+- Docker containerization
 
 ## Quick Start
 
@@ -85,47 +24,37 @@ spring-nextjs-start-kit/
 
 ### Using Docker (Recommended)
 
-1. **Clone the repository**
+1. Clone and start:
 
    ```bash
-   git clone https://github.com/RianNegreiros/spring-nextjs-start-kit.git
-   cd spring-nextjs-start-kit
-   ```
-
-2. **Start all services**
-
-   ```bash
-   cd infra
+   git clone https://github.com/RianNegreiros/spring-react-starter-kit.git
+   cd spring-react-starter-kit/infra
    docker-compose up -d
    ```
 
-3. **Access the applications**
-   - Frontend: <http://localhost:3000>
+2. Access:
+   - Frontend: <http://localhost:5173>
    - Backend API: <http://localhost:8080>
    - Database: localhost:5432
 
 ### Local Development
 
-#### Backend Setup
+**Backend:**
 
 ```bash
-cd backend
-./mvnw spring-boot:run
+cd backend && ./mvnw spring-boot:run
 ```
 
-#### Frontend Setup
+**Frontend:**
 
 ```bash
-cd frontend
-npm install
-npm run dev
+cd frontend && npm install && npm run dev
 ```
 
-#### Database Setup
+**Database:**
 
 ```bash
-cd infra
-docker-compose up postgres -d
+cd infra && docker-compose up postgres -d
 ```
 
 ## API Documentation
@@ -136,7 +65,10 @@ docker-compose up postgres -d
 - `POST /api/auth/login` - User login
 - `POST /api/auth/logout` - User logout
 - `GET /api/auth/current` - Get current user
-- `PUT /api/auth/profile` - Up date user profile
+
+### User Endpoints
+
+- `PUT /api/user/profile` - Update user profile
 
 ### Avatar Endpoints
 
@@ -150,6 +82,9 @@ docker-compose up postgres -d
 #### Backend (`application.properties`)
 
 ```properties
+# Frontend Configuration
+app.frontend.url=http://localhost:5173
+
 # Github Oauth2 Configuration
 spring.security.oauth2.client.registration.github.client-id=your-client-id
 spring.security.oauth2.client.registration.github.client-secret=your-client-secret
