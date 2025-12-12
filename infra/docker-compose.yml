@@ -38,12 +38,12 @@ services:
       context: ../frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "5173:5173"
     volumes:
       - ../frontend:/app
       - /app/node_modules
-    environment:
-      - NEXT_PUBLIC_API_URL=http://backend:8080
+    env_file:
+      - ../frontend/.env.local
     depends_on:
       - backend
     networks:
