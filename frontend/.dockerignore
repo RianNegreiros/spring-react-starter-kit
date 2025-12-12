@@ -1,42 +1,13 @@
-# Dependencies
-node_modules/
-
-# Build outputs
-.next/
-out/
-dist/
-build/
-
-# IDE files
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Git
-.git/
+node_modules
+npm-debug.log
+dist
+.git
 .gitignore
-
-# Environment files
-.env*.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Docs
 README.md
-*.md
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+.env
+.env.local
+.env.*.local
+coverage
+.vscode
+.idea
 *.log
-
-# Testing
-coverage/
-.nyc_output/
