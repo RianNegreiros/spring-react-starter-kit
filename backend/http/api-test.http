@@ -1,5 +1,5 @@
 @baseURL=http://localhost:8080/api
-@email=john.doe@example.com
+@email=john.doe@mail.com
 @firstName=John
 @lastName=Doe
 @password=password123
@@ -31,7 +31,7 @@ Authorization: Bearer {{login.response.body.data.token}}
 Accept: application/json
 
 ### Update user profile
-PUT {{baseURL}}/auth/profile
+PUT {{baseURL}}/user/profile
 Authorization: Bearer {{login.response.body.data.token}}
 Content-Type: application/json
 
