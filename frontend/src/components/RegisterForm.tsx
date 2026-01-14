@@ -1,39 +1,39 @@
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
-type RegisterFormProps = React.ComponentProps<"div">;
+type RegisterFormProps = React.ComponentProps<'div'>;
 
 export function RegisterForm({ className, ...props }: RegisterFormProps) {
   const { register, isLoading } = useAuth();
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [localError, setLocalError] = useState("");
+  const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [localError, setLocalError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLocalError("");
+    setLocalError('');
 
     if (password !== confirmPassword) {
-      setLocalError("Passwords do not match");
+      setLocalError('Passwords do not match');
       return;
     }
 
     if (password.length < 6) {
-      setLocalError("Password must be at least 6 characters");
+      setLocalError('Password must be at least 6 characters');
       return;
     }
 
@@ -45,7 +45,7 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader>
           <CardTitle>Create an account</CardTitle>
@@ -142,11 +142,11 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Creating account..." : "Create account"}
+                {isLoading ? 'Creating account...' : 'Create account'}
               </Button>
 
               <div className="text-center text-sm">
-                Already have an account?{" "}
+                Already have an account?{' '}
                 <Link
                   to="/login"
                   className="font-medium underline hover:no-underline"

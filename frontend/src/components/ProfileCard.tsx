@@ -1,6 +1,6 @@
-import ProfileHeader from "./ProfileHeader";
-import ProfileContent from "./ProfileContent";
-import { useAuth } from "@/hooks/useAuth";
+import ProfileHeader from './ProfileHeader';
+import ProfileContent from './ProfileContent';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ProfileCard() {
   const { user } = useAuth();

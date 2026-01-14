@@ -1,7 +1,7 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Mail } from "lucide-react";
-import AvatarUpload from "@/components/AvatarUpload";
-import { useAuth } from "@/hooks/useAuth";
+import { Card, CardContent } from '@/components/ui/card';
+import { Mail } from 'lucide-react';
+import AvatarUpload from '@/components/AvatarUpload';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ProfileHeader() {
   const { user } = useAuth();
