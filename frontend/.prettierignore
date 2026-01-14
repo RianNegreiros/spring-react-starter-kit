@@ -1,6 +1,82 @@
-# Ignore artifacts:
-build
-coverage
+# Node.js modules
+node_modules/
 
-# Ignore dependencies:
-node_modules
+# Build output
+dist/
+
+# Dependency directories
+.cache/
+.coverage/
+.lib-cache/
+.pnpm-store/
+
+# Local history for editors
+.history/
+.local/
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory
+coverage/
+
+# TypeScript cache
+.tsbuildinfo
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# IDE and editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Lock files
+pnpm-lock.yaml
+
+# Vite-specific files
+vite.config.ts
+
+# Configuration files
+*.config.js
+*.config.ts
+*.json
+
+# Public assets
+public/
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# Git files
+.gitignore
+
+# Prettier files
+.prettierrc
+.prettierignore
+
+# ESLint files
+eslint.config.js
+
+# Components.json
+components.json
+
+# README
+README.md
