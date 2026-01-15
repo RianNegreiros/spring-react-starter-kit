@@ -35,6 +35,11 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
         User user = (User) authentication.getPrincipal();
+        if (!user.isVerified()) {
+            log.warn("Authentication failed for email: {} - User not verified", email);
+            throw new RuntimeException("User not verified");
+        }
+
         String token = tokenConfig.generateToken(user);
 
         log.info("Authentication successful for email: {}", email);
