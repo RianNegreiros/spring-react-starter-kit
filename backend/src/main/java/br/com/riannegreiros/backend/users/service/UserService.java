@@ -8,13 +8,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.com.riannegreiros.backend.config.JWTUserData;
-import br.com.riannegreiros.backend.config.TokenConfig;
 import br.com.riannegreiros.backend.users.User;
+import br.com.riannegreiros.backend.users.VerificationCode;
 import br.com.riannegreiros.backend.users.dto.request.UserRegisterRequest;
 import br.com.riannegreiros.backend.users.dto.request.UserUpdateRequest;
 import br.com.riannegreiros.backend.users.dto.response.UserRegisterResponse;
 import br.com.riannegreiros.backend.users.dto.response.UserResponse;
 import br.com.riannegreiros.backend.users.repository.UserRepository;
+import br.com.riannegreiros.backend.users.repository.VerificationCodeRepository;
 import br.com.riannegreiros.backend.util.exceptions.EmailAlreadyExistsException;
 import jakarta.transaction.Transactional;
 
@@ -24,12 +25,15 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final TokenConfig tokenConfig;
+    private final EmailService emailService;
+    private final VerificationCodeRepository verificationCodeRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenConfig tokenConfig) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+            EmailService emailService, VerificationCodeRepository verificationCodeRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.tokenConfig = tokenConfig;
+        this.emailService = emailService;
+        this.verificationCodeRepository = verificationCodeRepository;
     }
 
     public UserRegisterResponse registerUser(UserRegisterRequest request) {
@@ -44,13 +48,16 @@ public class UserService {
         newUser.setPassword(passwordEncoder.encode(request.password()));
 
         User savedUser = userRepository.save(newUser);
-        String token = tokenConfig.generateToken(savedUser);
+
+        VerificationCode code = new VerificationCode(request.email());
+        verificationCodeRepository.save(code);
+        emailService.sendVerificationEmail(request.email(), code.getCode());
 
         return new UserRegisterResponse(
-                token,
                 savedUser.getFirstName(),
                 savedUser.getLastName(),
-                savedUser.getEmail());
+                savedUser.getEmail(),
+                "Verification code sent to " + request.email());
     }
 
     public Optional<UserResponse> getCurrentUser() {
