@@ -5,12 +5,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import br.com.riannegreiros.backend.users.dto.request.EmailVerificationRequest;
 import br.com.riannegreiros.backend.users.dto.request.LoginRequest;
 import br.com.riannegreiros.backend.users.dto.request.UserRegisterRequest;
 import br.com.riannegreiros.backend.util.ApiResponse;
+import br.com.riannegreiros.backend.users.dto.response.EmailVerificationResponse;
 import br.com.riannegreiros.backend.users.dto.response.LoginResponse;
 import br.com.riannegreiros.backend.users.dto.response.UserRegisterResponse;
 import br.com.riannegreiros.backend.users.service.AuthService;
+import br.com.riannegreiros.backend.users.service.EmailVerificationService;
 import br.com.riannegreiros.backend.users.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,10 +38,13 @@ public class AuthController {
 
     private final UserService userService;
     private final AuthService authService;
+    private final EmailVerificationService emailVerificationService;
 
-    public AuthController(AuthService authService, UserService userService) {
+    public AuthController(AuthService authService, UserService userService,
+            EmailVerificationService emailVerificationService) {
         this.authService = authService;
         this.userService = userService;
+        this.emailVerificationService = emailVerificationService;
     }
 
     @GetMapping("/current")
@@ -100,5 +106,17 @@ public class AuthController {
         SecurityContextHolder.clearContext();
 
         return ResponseEntity.ok(ApiResponse.success("Logged out successfully"));
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<ApiResponse<String>> verifyEmail(@Valid @RequestBody EmailVerificationRequest request) {
+        log.info("Email verification attempt for email={}", request.email());
+        try {
+            EmailVerificationResponse emailVerificationResponse = emailVerificationService.VerifyEmail(request);
+            return ResponseEntity.ok(ApiResponse.success(
+                    "Email verified successfully. Token: " + emailVerificationResponse.token()));
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }
