@@ -102,9 +102,19 @@ public class AuthController {
     }
 
     @PostMapping("/verify-email")
-    public ResponseEntity<EmailVerificationResponse> verifyEmail(@Valid @RequestBody EmailVerificationRequest request) {
+    public ResponseEntity<EmailVerificationResponse> verifyEmail(
+            @Valid @RequestBody EmailVerificationRequest request,
+            HttpServletResponse response) {
         log.info("Email verification attempt for email={}", request.email());
         EmailVerificationResponse emailVerificationResponse = emailVerificationService.verifyEmail(request);
+
+        Cookie cookie = new Cookie("auth_token", emailVerificationResponse.token());
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setMaxAge(86400);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
         return ResponseEntity.ok(emailVerificationResponse);
     }
 
