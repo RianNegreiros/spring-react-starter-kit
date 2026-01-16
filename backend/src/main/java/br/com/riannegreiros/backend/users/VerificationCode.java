@@ -40,4 +40,9 @@ public class VerificationCode extends AbstractEntity {
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(expiresAt);
     }
+
+    public void regenerate() {
+        this.code = generateCode();
+        this.expiresAt = LocalDateTime.now().plusMinutes(15);
+    }
 }
