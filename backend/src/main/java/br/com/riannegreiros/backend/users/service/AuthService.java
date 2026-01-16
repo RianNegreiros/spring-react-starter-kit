@@ -11,6 +11,7 @@ import br.com.riannegreiros.backend.config.TokenConfig;
 import br.com.riannegreiros.backend.users.User;
 import br.com.riannegreiros.backend.users.dto.request.LoginRequest;
 import br.com.riannegreiros.backend.users.dto.response.LoginResponse;
+import br.com.riannegreiros.backend.util.exceptions.UserNotVerifiedException;
 
 @Service
 public class AuthService {
@@ -37,7 +38,7 @@ public class AuthService {
         User user = (User) authentication.getPrincipal();
         if (!user.isVerified()) {
             log.warn("Authentication failed for email: {} - User not verified", email);
-            throw new RuntimeException("User not verified");
+            throw new UserNotVerifiedException("User not verified");
         }
 
         String token = tokenConfig.generateToken(user);

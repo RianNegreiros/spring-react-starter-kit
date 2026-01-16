@@ -11,6 +11,8 @@ import br.com.riannegreiros.backend.users.dto.request.EmailVerificationRequest;
 import br.com.riannegreiros.backend.users.dto.response.EmailVerificationResponse;
 import br.com.riannegreiros.backend.users.repository.UserRepository;
 import br.com.riannegreiros.backend.users.repository.VerificationCodeRepository;
+import br.com.riannegreiros.backend.util.exceptions.UserNotFoundException;
+import br.com.riannegreiros.backend.util.exceptions.VerificationException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -32,11 +34,11 @@ public class EmailVerificationService {
                 request.code());
 
         if (!vOptional.isPresent() || vOptional.get().isExpired()) {
-            throw new RuntimeException("Invalid or expired verification code");
+            throw new VerificationException("Invalid or expired verification code");
         }
 
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         user.setVerified(true);
         userRepository.save(user);

@@ -16,7 +16,9 @@ import br.com.riannegreiros.backend.users.dto.response.UserRegisterResponse;
 import br.com.riannegreiros.backend.users.dto.response.UserResponse;
 import br.com.riannegreiros.backend.users.repository.UserRepository;
 import br.com.riannegreiros.backend.users.repository.VerificationCodeRepository;
+import br.com.riannegreiros.backend.util.exceptions.AuthenticationException;
 import br.com.riannegreiros.backend.util.exceptions.EmailAlreadyExistsException;
+import br.com.riannegreiros.backend.util.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -118,20 +120,20 @@ public class UserService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.isAuthenticated()) {
-            throw new RuntimeException("User not authenticated");
+            throw new AuthenticationException("User not authenticated");
         }
 
         Object principal = auth.getPrincipal();
 
         if (principal instanceof JWTUserData userData) {
             return userRepository.findById(userData.userId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new UserNotFoundException("User not found"));
         }
 
         if (principal instanceof User user) {
             return user;
         }
 
-        throw new RuntimeException("Invalid authentication principal");
+        throw new AuthenticationException("Invalid authentication principal");
     }
 }

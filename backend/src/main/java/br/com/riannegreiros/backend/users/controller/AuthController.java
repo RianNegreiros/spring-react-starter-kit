@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import br.com.riannegreiros.backend.users.dto.request.EmailVerificationRequest;
 import br.com.riannegreiros.backend.users.dto.request.LoginRequest;
 import br.com.riannegreiros.backend.users.dto.request.UserRegisterRequest;
-import br.com.riannegreiros.backend.util.ApiResponse;
 import br.com.riannegreiros.backend.users.dto.response.EmailVerificationResponse;
 import br.com.riannegreiros.backend.users.dto.response.LoginResponse;
 import br.com.riannegreiros.backend.users.dto.response.UserRegisterResponse;
@@ -48,19 +47,18 @@ public class AuthController {
     }
 
     @GetMapping("/current")
-    public ResponseEntity<ApiResponse<Object>> getCurrentUser(@AuthenticationPrincipal OAuth2User oauthUser) {
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal OAuth2User oauthUser) {
         if (oauthUser != null) {
-            return ResponseEntity.ok(ApiResponse.success(oauthUser.getAttributes(), "OAuth user data"));
+            return ResponseEntity.ok(oauthUser.getAttributes());
         }
 
         return userService.getCurrentUser()
-                .map(user -> ResponseEntity.ok(ApiResponse.success((Object) user)))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(ApiResponse.error("User not authenticated")));
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request,
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request,
             HttpServletResponse response) {
         log.info("Login request received for email: {}", request.email());
 
@@ -73,27 +71,21 @@ public class AuthController {
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        return ResponseEntity.ok(ApiResponse.success(loginResponse, "Login successful"));
+        return ResponseEntity.ok(loginResponse);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<UserRegisterResponse>> register(
+    public ResponseEntity<UserRegisterResponse> register(
             @Valid @RequestBody UserRegisterRequest request) {
 
         log.info("Register attempt for email={}", request.email());
 
-        try {
-            UserRegisterResponse response = userService.registerUser(request);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.success(response, "User registered successfully"));
-
-        } catch (Exception e) {
-            throw e;
-        }
+        UserRegisterResponse response = userService.registerUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<String>> logout(
+    public ResponseEntity<Void> logout(
             HttpServletRequest request,
             HttpServletResponse response) {
 
@@ -105,18 +97,13 @@ public class AuthController {
 
         SecurityContextHolder.clearContext();
 
-        return ResponseEntity.ok(ApiResponse.success("Logged out successfully"));
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/verify-email")
-    public ResponseEntity<ApiResponse<String>> verifyEmail(@Valid @RequestBody EmailVerificationRequest request) {
+    public ResponseEntity<EmailVerificationResponse> verifyEmail(@Valid @RequestBody EmailVerificationRequest request) {
         log.info("Email verification attempt for email={}", request.email());
-        try {
-            EmailVerificationResponse emailVerificationResponse = emailVerificationService.VerifyEmail(request);
-            return ResponseEntity.ok(ApiResponse.success(
-                    "Email verified successfully. Token: " + emailVerificationResponse.token()));
-        } catch (Exception e) {
-            throw e;
-        }
+        EmailVerificationResponse emailVerificationResponse = emailVerificationService.VerifyEmail(request);
+        return ResponseEntity.ok(emailVerificationResponse);
     }
 }

@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import br.com.riannegreiros.backend.util.exceptions.StorageException;
+
 import java.io.IOException;
 import java.util.UUID;
 
@@ -44,7 +46,7 @@ public class GcpStorageService implements StorageService {
                 blob.delete();
             }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to delete file: " + e.getMessage(), e);
+            throw new StorageException("Failed to delete file: " + e.getMessage(), e);
         }
     }
 
