@@ -1,9 +1,9 @@
-import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, Trash2, Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
+import { useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Camera, Trash2, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AvatarUploadProps {
   currentAvatarUrl?: string;
@@ -24,21 +24,21 @@ export default function AvatarUpload({
   };
 
   const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      toast.error("Invalid file type", {
-        description: "Please select an image file (JPG, PNG, GIF, etc.)",
+    if (!file.type.startsWith('image/')) {
+      toast.error('Invalid file type', {
+        description: 'Please select an image file (JPG, PNG, GIF, etc.)',
       });
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("File too large", {
-        description: "File size must be less than 5MB",
+      toast.error('File too large', {
+        description: 'File size must be less than 5MB',
       });
       return;
     }
@@ -46,38 +46,38 @@ export default function AvatarUpload({
     setIsUploading(true);
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append('file', file);
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/avatar`, {
-        method: "POST",
+        method: 'POST',
         body: formData,
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (response.ok) {
         await refreshUser();
-        toast.success("Avatar updated", {
-          description: "Your profile picture has been updated successfully",
+        toast.success('Avatar updated', {
+          description: 'Your profile picture has been updated successfully',
         });
       } else {
         const result = await response
           .json()
-          .catch(() => ({ message: "Upload failed" }));
-        toast.error("Upload failed", {
+          .catch(() => ({ message: 'Upload failed' }));
+        toast.error('Upload failed', {
           description:
-            result.message || "An error occurred while uploading your avatar",
+            result.message || 'An error occurred while uploading your avatar',
         });
       }
     } catch (error) {
-      console.error("Avatar upload error:", error);
-      toast.error("Upload failed", {
+      console.error('Avatar upload error:', error);
+      toast.error('Upload failed', {
         description:
-          "Network error. Please check your connection and try again.",
+          'Network error. Please check your connection and try again.',
       });
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+        fileInputRef.current.value = '';
       }
     }
   };
@@ -88,29 +88,29 @@ export default function AvatarUpload({
     setIsDeleting(true);
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/avatar`, {
-        method: "DELETE",
-        credentials: "include",
+        method: 'DELETE',
+        credentials: 'include',
       });
 
       if (response.ok) {
         await refreshUser();
-        toast.success("Avatar removed", {
-          description: "Your profile picture has been removed",
+        toast.success('Avatar removed', {
+          description: 'Your profile picture has been removed',
         });
       } else {
         const error = await response
           .json()
-          .catch(() => ({ message: "Delete failed" }));
-        toast.error("Delete failed", {
+          .catch(() => ({ message: 'Delete failed' }));
+        toast.error('Delete failed', {
           description:
-            error.message || "An error occurred while deleting your avatar",
+            error.message || 'An error occurred while deleting your avatar',
         });
       }
     } catch (error) {
-      console.error("Avatar delete error:", error);
-      toast.error("Delete failed", {
+      console.error('Avatar delete error:', error);
+      toast.error('Delete failed', {
         description:
-          "Network error. Please check your connection and try again.",
+          'Network error. Please check your connection and try again.',
       });
     } finally {
       setIsDeleting(false);
@@ -122,7 +122,7 @@ export default function AvatarUpload({
       <Avatar className="h-24 w-24">
         <AvatarImage src={currentAvatarUrl} alt="Profile" />
         <AvatarFallback className="text-2xl">
-          {(userName || "U")[0].toUpperCase()}
+          {(userName || 'U')[0].toUpperCase()}
         </AvatarFallback>
       </Avatar>
       <div className="absolute -right-2 -bottom-2 flex gap-1">

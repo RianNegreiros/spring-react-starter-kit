@@ -3,7 +3,6 @@ package br.com.riannegreiros.backend.users.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.riannegreiros.backend.users.dto.request.UserUpdateRequest;
-import br.com.riannegreiros.backend.util.ApiResponse;
 import br.com.riannegreiros.backend.users.dto.response.UserResponse;
 import br.com.riannegreiros.backend.users.service.UserService;
 import jakarta.validation.Valid;
@@ -24,10 +23,10 @@ public class UserController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<ApiResponse<UserResponse>> updateProfile(
+    public ResponseEntity<UserResponse> updateProfile(
             @Valid @RequestBody UserUpdateRequest request) {
 
         UserResponse response = userService.updateUser(request);
-        return ResponseEntity.ok(ApiResponse.success(response, "Profile updated successfully"));
+        return ResponseEntity.ok(response);
     }
 }

@@ -8,14 +8,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.com.riannegreiros.backend.config.JWTUserData;
-import br.com.riannegreiros.backend.config.TokenConfig;
 import br.com.riannegreiros.backend.users.User;
+import br.com.riannegreiros.backend.users.VerificationCode;
 import br.com.riannegreiros.backend.users.dto.request.UserRegisterRequest;
 import br.com.riannegreiros.backend.users.dto.request.UserUpdateRequest;
 import br.com.riannegreiros.backend.users.dto.response.UserRegisterResponse;
 import br.com.riannegreiros.backend.users.dto.response.UserResponse;
 import br.com.riannegreiros.backend.users.repository.UserRepository;
+import br.com.riannegreiros.backend.users.repository.VerificationCodeRepository;
+import br.com.riannegreiros.backend.util.exceptions.AuthenticationException;
 import br.com.riannegreiros.backend.util.exceptions.EmailAlreadyExistsException;
+import br.com.riannegreiros.backend.util.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -24,12 +27,15 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final TokenConfig tokenConfig;
+    private final EmailService emailService;
+    private final VerificationCodeRepository verificationCodeRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenConfig tokenConfig) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+            EmailService emailService, VerificationCodeRepository verificationCodeRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.tokenConfig = tokenConfig;
+        this.emailService = emailService;
+        this.verificationCodeRepository = verificationCodeRepository;
     }
 
     public UserRegisterResponse registerUser(UserRegisterRequest request) {
@@ -44,13 +50,16 @@ public class UserService {
         newUser.setPassword(passwordEncoder.encode(request.password()));
 
         User savedUser = userRepository.save(newUser);
-        String token = tokenConfig.generateToken(savedUser);
+
+        VerificationCode code = new VerificationCode(request.email());
+        verificationCodeRepository.save(code);
+        emailService.sendVerificationEmail(request.email(), code.getCode());
 
         return new UserRegisterResponse(
-                token,
                 savedUser.getFirstName(),
                 savedUser.getLastName(),
-                savedUser.getEmail());
+                savedUser.getEmail(),
+                "Verification code sent to " + request.email());
     }
 
     public Optional<UserResponse> getCurrentUser() {
@@ -111,20 +120,20 @@ public class UserService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.isAuthenticated()) {
-            throw new RuntimeException("User not authenticated");
+            throw new AuthenticationException("User not authenticated");
         }
 
         Object principal = auth.getPrincipal();
 
         if (principal instanceof JWTUserData userData) {
             return userRepository.findById(userData.userId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new UserNotFoundException("User not found"));
         }
 
         if (principal instanceof User user) {
             return user;
         }
 
-        throw new RuntimeException("Invalid authentication principal");
+        throw new AuthenticationException("Invalid authentication principal");
     }
 }

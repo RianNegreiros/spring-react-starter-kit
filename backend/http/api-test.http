@@ -15,6 +15,23 @@ Content-Type: application/json
   "password": "{{password}}"
 }
 
+### Verify email
+POST {{baseURL}}/auth/verify-email
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "code": "218421"
+}
+
+### Resend code
+POST {{baseURL}}/auth/resend-verification-code
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+
 ### Login user
 # @name login
 POST {{baseURL}}/auth/login

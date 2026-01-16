@@ -1,33 +1,33 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ProfileContent() {
   const { user, refreshUser } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
+    firstName: '',
+    lastName: '',
+    email: '',
   });
 
   useEffect(() => {
     if (user) {
       setFormData({
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        email: user.email || "",
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
       });
     }
   }, [user]);
@@ -38,23 +38,23 @@ export default function ProfileContent() {
     e.preventDefault();
 
     if (!formData.firstName.trim() || !formData.lastName.trim()) {
-      toast.error("Validation error", {
-        description: "First name and last name are required",
+      toast.error('Validation error', {
+        description: 'First name and last name are required',
       });
       return;
     }
 
     if (!formData.email.trim()) {
-      toast.error("Validation error", {
-        description: "Email is required",
+      toast.error('Validation error', {
+        description: 'Email is required',
       });
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      toast.error("Validation error", {
-        description: "Please enter a valid email address",
+      toast.error('Validation error', {
+        description: 'Please enter a valid email address',
       });
       return;
     }
@@ -64,53 +64,53 @@ export default function ProfileContent() {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/user/profile`,
         {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({
             firstName: formData.firstName.trim(),
             lastName: formData.lastName.trim(),
             email: formData.email.trim(),
           }),
-        },
+        }
       );
 
       if (response.ok) {
         await refreshUser();
-        toast.success("Profile updated", {
-          description: "Your profile has been updated successfully",
+        toast.success('Profile updated', {
+          description: 'Your profile has been updated successfully',
         });
       } else {
         const errorData = await response
           .json()
-          .catch(() => ({ message: "Update failed" }));
+          .catch(() => ({ message: 'Update failed' }));
 
         if (response.status === 400) {
-          toast.error("Invalid data", {
+          toast.error('Invalid data', {
             description:
-              errorData.message || "Please check your input and try again",
+              errorData.message || 'Please check your input and try again',
           });
         } else if (response.status === 401) {
-          toast.error("Authentication required", {
-            description: "Please log in again to continue",
+          toast.error('Authentication required', {
+            description: 'Please log in again to continue',
           });
         } else if (response.status === 409) {
-          toast.error("Email already exists", {
-            description: "This email is already in use by another account",
+          toast.error('Email already exists', {
+            description: 'This email is already in use by another account',
           });
         } else {
-          toast.error("Update failed", {
+          toast.error('Update failed', {
             description:
               errorData.message ||
-              "An error occurred while updating your profile",
+              'An error occurred while updating your profile',
           });
         }
       }
     } catch (error) {
-      console.error("Profile update error:", error);
-      toast.error("Update failed", {
+      console.error('Profile update error:', error);
+      toast.error('Update failed', {
         description:
-          "Network error. Please check your connection and try again.",
+          'Network error. Please check your connection and try again.',
       });
     } finally {
       setIsUpdating(false);
@@ -137,7 +137,7 @@ export default function ProfileContent() {
               <Input
                 id="firstName"
                 value={formData.firstName}
-                onChange={(e) => handleChange("firstName", e.target.value)}
+                onChange={(e) => handleChange('firstName', e.target.value)}
                 required
                 disabled={isUpdating}
                 placeholder="John"
@@ -148,7 +148,7 @@ export default function ProfileContent() {
               <Input
                 id="lastName"
                 value={formData.lastName}
-                onChange={(e) => handleChange("lastName", e.target.value)}
+                onChange={(e) => handleChange('lastName', e.target.value)}
                 required
                 disabled={isUpdating}
                 placeholder="Doe"
@@ -160,7 +160,7 @@ export default function ProfileContent() {
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => handleChange("email", e.target.value)}
+                onChange={(e) => handleChange('email', e.target.value)}
                 required
                 disabled={isUpdating}
                 placeholder="john.doe@example.com"
@@ -174,7 +174,7 @@ export default function ProfileContent() {
                 Updating...
               </>
             ) : (
-              "Update Profile"
+              'Update Profile'
             )}
           </Button>
         </form>

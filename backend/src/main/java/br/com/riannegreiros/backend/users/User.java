@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import br.com.riannegreiros.backend.entity.AbstractEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -24,6 +25,9 @@ public class User extends AbstractEntity implements UserDetails {
     private String email;
     private String password;
     private String avatarUrl;
+
+    @Column(name = "is_verified")
+    private boolean verified = false;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -1,5 +1,5 @@
-import { createContext, useState, useEffect, ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import { createContext, useState, useEffect, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export interface AuthContextType {
   user: User | null;
@@ -10,7 +10,7 @@ export interface AuthContextType {
     email: string,
     firstName: string,
     lastName: string,
-    password: string,
+    password: string
   ) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -27,7 +27,7 @@ export interface User {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined,
+  undefined
 );
 
 interface AuthProviderProps {
@@ -51,18 +51,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/auth/current`,
         {
-          credentials: "include",
-        },
+          credentials: 'include',
+        }
       );
 
       if (response.ok) {
         const data = await response.json();
-        const userData = data.data;
+        const userData = data.data || data;
         const normalizedUser: User = {
           id: userData.id || userData.userId || userData.sub,
           email: userData.email,
-          firstName: userData.firstName || userData.given_name || "",
-          lastName: userData.lastName || userData.family_name || "",
+          firstName: userData.firstName || userData.given_name || '',
+          lastName: userData.lastName || userData.family_name || '',
           avatar_url:
             userData.avatarUrl || userData.avatar_url || userData.picture,
         };
@@ -72,7 +72,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(null);
       }
     } catch (error) {
-      console.error("Failed to fetch current user:", error);
+      console.error('Failed to fetch current user:', error);
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -87,11 +87,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/auth/login`,
         {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
-        },
+        }
       );
 
       if (!response.ok) {
@@ -100,9 +100,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       await fetchCurrentUser();
-      navigate("/profile");
+      navigate('/profile');
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Login failed";
+      const message = error instanceof Error ? error.message : 'Login failed';
       setError(message);
       throw error;
     } finally {
@@ -114,7 +114,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     email: string,
     firstName: string,
     lastName: string,
-    password: string,
+    password: string
   ) => {
     setIsLoading(true);
     setError(null);
@@ -123,24 +123,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/auth/register`,
         {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, firstName, lastName, password }),
-        },
+        }
       );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          errorData.error || `Registration failed: ${response.status}`,
+          errorData.error || `Registration failed: ${response.status}`
         );
       }
 
-      await login(email, password);
+      navigate(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Registration failed";
+        error instanceof Error ? error.message : 'Registration failed';
       setError(message);
       throw error;
     } finally {
@@ -153,15 +153,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     try {
       await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
-        method: "POST",
-        credentials: "include",
+        method: 'POST',
+        credentials: 'include',
       });
     } catch (error) {
-      console.error("Logout error:", error);
-      setError("Logout failed, but you will be signed out locally");
+      console.error('Logout error:', error);
+      setError('Logout failed, but you will be signed out locally');
     } finally {
       setUser(null);
-      navigate("/login");
+      navigate('/login');
     }
   };
 

@@ -11,6 +11,7 @@ import br.com.riannegreiros.backend.storage.service.StorageService;
 import br.com.riannegreiros.backend.users.User;
 import br.com.riannegreiros.backend.users.repository.UserRepository;
 import br.com.riannegreiros.backend.users.service.UserService;
+import br.com.riannegreiros.backend.util.exceptions.InvalidFileException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -58,13 +59,13 @@ public class AvatarService {
 
     private void validateFile(MultipartFile file) {
         if (file.isEmpty()) {
-            throw new RuntimeException("File cannot be empty");
+            throw new InvalidFileException("File cannot be empty");
         }
         if (file.getSize() > MAX_SIZE) {
-            throw new RuntimeException("File size must be less than 5MB");
+            throw new InvalidFileException("File size must be less than 5MB");
         }
         if (!ALLOWED_TYPES.contains(file.getContentType())) {
-            throw new RuntimeException("Only JPEG, PNG, GIF, and WebP images are allowed");
+            throw new InvalidFileException("Only JPEG, PNG, GIF, and WebP images are allowed");
         }
     }
 }
