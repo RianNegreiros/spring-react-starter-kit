@@ -4,6 +4,7 @@ import Navigation from './components/Navigation';
 import HomePage from './pages/Home';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
+import VerifyEmailPage from './pages/VerifyEmail';
 import ProfilePage from './pages/Profile';
 import './index.css';
 
@@ -16,6 +17,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </AuthProvider>

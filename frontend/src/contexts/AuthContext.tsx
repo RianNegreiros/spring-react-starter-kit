@@ -57,7 +57,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (response.ok) {
         const data = await response.json();
-        const userData = data.data;
+        const userData = data.data || data;
         const normalizedUser: User = {
           id: userData.id || userData.userId || userData.sub,
           email: userData.email,
@@ -137,7 +137,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         );
       }
 
-      await login(email, password);
+      navigate(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Registration failed';
