@@ -12,15 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.google.api.gax.rpc.ApiException;
 
-import br.com.riannegreiros.backend.util.exceptions.AuthenticationException;
-import br.com.riannegreiros.backend.util.exceptions.AvatarUploadException;
-import br.com.riannegreiros.backend.util.exceptions.EmailAlreadyExistsException;
-import br.com.riannegreiros.backend.util.exceptions.EmailSendException;
-import br.com.riannegreiros.backend.util.exceptions.InvalidFileException;
-import br.com.riannegreiros.backend.util.exceptions.StorageException;
-import br.com.riannegreiros.backend.util.exceptions.UserNotFoundException;
-import br.com.riannegreiros.backend.util.exceptions.UserNotVerifiedException;
-import br.com.riannegreiros.backend.util.exceptions.VerificationException;
+import br.com.riannegreiros.backend.util.exceptions.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +20,14 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(VerificationCodeNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleVerificationCodeNotFound(VerificationCodeNotFoundException ex) {
+        log.warn("Verification code not found: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("Verification code not found"));
+    }
 
     @ExceptionHandler(UserNotVerifiedException.class)
     public ResponseEntity<ErrorResponse> handleUserNotVerified(UserNotVerifiedException ex) {

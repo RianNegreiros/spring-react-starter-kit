@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import br.com.riannegreiros.backend.users.dto.request.EmailVerificationRequest;
 import br.com.riannegreiros.backend.users.dto.request.LoginRequest;
+import br.com.riannegreiros.backend.users.dto.request.ResendVerificationCodeRequest;
 import br.com.riannegreiros.backend.users.dto.request.UserRegisterRequest;
 import br.com.riannegreiros.backend.users.dto.response.EmailVerificationResponse;
 import br.com.riannegreiros.backend.users.dto.response.LoginResponse;
@@ -103,7 +104,15 @@ public class AuthController {
     @PostMapping("/verify-email")
     public ResponseEntity<EmailVerificationResponse> verifyEmail(@Valid @RequestBody EmailVerificationRequest request) {
         log.info("Email verification attempt for email={}", request.email());
-        EmailVerificationResponse emailVerificationResponse = emailVerificationService.VerifyEmail(request);
+        EmailVerificationResponse emailVerificationResponse = emailVerificationService.verifyEmail(request);
+        return ResponseEntity.ok(emailVerificationResponse);
+    }
+
+    @PostMapping("/resend-verification-code")
+    public ResponseEntity<String> resendVerificationCode(
+            @Valid @RequestBody ResendVerificationCodeRequest request) {
+        log.info("Resend verification code attempt for email={}", request.email());
+        String emailVerificationResponse = emailVerificationService.resendVerificationCode(request.email());
         return ResponseEntity.ok(emailVerificationResponse);
     }
 }

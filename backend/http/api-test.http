@@ -21,7 +21,15 @@ Content-Type: application/json
 
 {
   "email": "{{email}}",
-  "code": "866707"
+  "code": "218421"
+}
+
+### Resend code
+POST {{baseURL}}/auth/resend-verification-code
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
 }
 
 ### Login user
