@@ -10,6 +10,7 @@ import br.com.riannegreiros.backend.config.TokenConfig;
 import br.com.riannegreiros.backend.users.User;
 import br.com.riannegreiros.backend.users.VerificationCode;
 import br.com.riannegreiros.backend.users.dto.request.EmailVerificationRequest;
+import br.com.riannegreiros.backend.users.dto.request.ResendVerificationCodeRequest;
 import br.com.riannegreiros.backend.users.dto.response.EmailVerificationResponse;
 import br.com.riannegreiros.backend.users.repository.UserRepository;
 import br.com.riannegreiros.backend.users.repository.VerificationCodeRepository;
@@ -61,20 +62,27 @@ public class EmailVerificationService {
     }
 
     @Transactional
-    public String resendVerificationCode(String email) {
-        Optional<VerificationCode> vOptional = verificationCodeRepository.findByEmail(email);
+    public String resendVerificationCode(ResendVerificationCodeRequest request) {
+        log.info("Resend verification code requested for email: {}", request.email());
 
-        log.info("Resend verification code requested for email: {}", email);
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + request.email()));
 
-        if (!vOptional.isPresent()) {
-            throw new VerificationCodeNotFoundException("Verification code do not exist for this email: " + email);
+        if (user.isVerified()) {
+            throw new VerificationException("Email already verified");
         }
 
-        verificationCodeRepository.deleteByEmail(email);
-        VerificationCode code = new VerificationCode(email);
-        verificationCodeRepository.save(code);
-        emailService.sendVerificationEmail(email, code.getCode());
+        Optional<VerificationCode> vOptional = verificationCodeRepository.findByEmail(request.email());
 
-        return "Verification code resent to " + email;
+        if (!vOptional.isPresent()) {
+            throw new VerificationCodeNotFoundException("No verification code found for email: " + request.email());
+        }
+
+        VerificationCode code = vOptional.get();
+        code.regenerate();
+
+        emailService.sendVerificationEmail(request.email(), code.getCode());
+
+        return "Verification code resent to " + request.email();
     }
 }

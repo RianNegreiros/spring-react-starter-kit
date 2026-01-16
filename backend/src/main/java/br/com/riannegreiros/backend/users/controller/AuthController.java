@@ -112,7 +112,7 @@ public class AuthController {
     public ResponseEntity<String> resendVerificationCode(
             @Valid @RequestBody ResendVerificationCodeRequest request) {
         log.info("Resend verification code attempt for email={}", request.email());
-        String emailVerificationResponse = emailVerificationService.resendVerificationCode(request.email());
+        String emailVerificationResponse = emailVerificationService.resendVerificationCode(request);
         return ResponseEntity.ok(emailVerificationResponse);
     }
 }
