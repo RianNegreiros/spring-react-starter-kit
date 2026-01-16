@@ -4,170 +4,139 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.web.multipart.MultipartException;
 
-import br.com.riannegreiros.backend.util.exceptions.ApiException;
+import com.google.api.gax.rpc.ApiException;
 
-import java.time.LocalDateTime;
+import br.com.riannegreiros.backend.util.exceptions.AuthenticationException;
+import br.com.riannegreiros.backend.util.exceptions.AvatarUploadException;
+import br.com.riannegreiros.backend.util.exceptions.EmailAlreadyExistsException;
+import br.com.riannegreiros.backend.util.exceptions.EmailSendException;
+import br.com.riannegreiros.backend.util.exceptions.InvalidFileException;
+import br.com.riannegreiros.backend.util.exceptions.StorageException;
+import br.com.riannegreiros.backend.util.exceptions.UserNotFoundException;
+import br.com.riannegreiros.backend.util.exceptions.UserNotVerifiedException;
+import br.com.riannegreiros.backend.util.exceptions.VerificationException;
+
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(ApiException.class)
-    public ResponseEntity<ApiResponse<Void>> handleApiException(ApiException ex, WebRequest request) {
-        log.warn("API Exception: {}", ex.getMessage());
+    @ExceptionHandler(UserNotVerifiedException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotVerified(UserNotVerifiedException ex) {
+        log.warn("User not verified: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse("User not verified. Please verify your account."));
+    }
 
-        return ResponseEntity.status(ex.getStatus())
-                .body(new ApiResponse<>(
-                        LocalDateTime.now(),
-                        false,
-                        ex.getMessage(),
-                        null,
-                        null));
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex) {
+        log.warn("Authentication error: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex) {
+        log.warn("User not found: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("User not found"));
+    }
+
+    @ExceptionHandler(VerificationException.class)
+    public ResponseEntity<ErrorResponse> handleVerification(VerificationException ex) {
+        log.warn("Verification error: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidFileException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFile(InvalidFileException ex) {
+        log.warn("Invalid file: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
+        log.warn("Email already exists: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse("Email already in use"));
+    }
+
+    @ExceptionHandler(StorageException.class)
+    public ResponseEntity<ErrorResponse> handleStorage(StorageException ex) {
+        log.error("Storage error: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Storage operation failed"));
+    }
+
+    @ExceptionHandler(EmailSendException.class)
+    public ResponseEntity<ErrorResponse> handleEmailSend(EmailSendException ex) {
+        log.error("Email send error: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Failed to send email"));
+    }
+
+    @ExceptionHandler(AvatarUploadException.class)
+    public ResponseEntity<ErrorResponse> handleAvatarUpload(AvatarUploadException ex) {
+        log.error("Avatar upload failed: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Failed to upload avatar"));
+    }
+
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ErrorResponse> handleApiException(ApiException ex) {
+        log.error("External API error: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(new ErrorResponse("External service error. Please try again later."));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResponse<Void>> handleBadCredentials(
-            BadCredentialsException ex, WebRequest request) {
-
+    public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
         log.warn("Authentication failed - bad credentials");
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ApiResponse<>(
-                        LocalDateTime.now(),
-                        false,
-                        "Invalid email or password",
-                        null,
-                        null));
-    }
-
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUsernameNotFound(
-            UsernameNotFoundException ex, WebRequest request) {
-
-        log.warn("Authentication failed - user not found");
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ApiResponse<>(
-                        LocalDateTime.now(),
-                        false,
-                        "Invalid email or password",
-                        null,
-                        null));
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse("Invalid email or password"));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationException(
-            MethodArgumentNotValidException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
 
-        Map<String, String> errors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .collect(Collectors.toMap(
-                        FieldError::getField,
-                        error -> error.getDefaultMessage() != null ? error.getDefaultMessage() : "Invalid value"));
-
-        String message = errors.entrySet().stream()
-                .map(entry -> entry.getKey() + ": " + entry.getValue())
-                .collect(Collectors.joining(", "));
-
-        log.warn("Validation error: {}", message);
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ApiResponse<>(
-                        LocalDateTime.now(),
-                        false,
-                        "Validation failed",
-                        null,
-                        errors));
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiResponse<Void>> handleAccessDenied(
-            AccessDeniedException ex, WebRequest request) {
-
-        log.warn("Access denied - insufficient permissions");
-
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new ApiResponse<>(
-                        LocalDateTime.now(),
-                        false,
-                        "You do not have permission to access this resource",
-                        null,
-                        null));
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(
-            IllegalArgumentException ex, WebRequest request) {
-
-        log.warn("Invalid argument: {}", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ApiResponse<>(
-                        LocalDateTime.now(),
-                        false,
-                        ex.getMessage(),
-                        null,
-                        null));
-    }
-
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<ApiResponse<Void>> handleMaxSizeException(
-            MaxUploadSizeExceededException ex, WebRequest request) {
-
-        log.warn("File upload size exceeded: {}", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE)
-                .body(new ApiResponse<>(
-                        LocalDateTime.now(),
-                        false,
-                        "File too large. Maximum size allowed is 5MB",
-                        null,
-                        null));
-    }
-
-    @ExceptionHandler(MultipartException.class)
-    public ResponseEntity<ApiResponse<Void>> handleMultipartException(
-            MultipartException ex, WebRequest request) {
-
-        log.warn("Multipart file error: {}", ex.getMessage());
-
-        return ResponseEntity.badRequest()
-                .body(new ApiResponse<>(
-                        LocalDateTime.now(),
-                        false,
-                        "Invalid file format or corrupted file",
-                        null,
-                        null));
+        log.warn("Validation failed: {}", errors);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("Validation failed"));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleGenericException(
-            Exception ex, WebRequest request) {
-
-        String requestUri = request.getDescription(false).replace("uri=", "");
-        log.error("Unhandled exception occurred - URI: {}, Message: {}", requestUri, ex.getMessage(), ex);
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiResponse<>(
-                        LocalDateTime.now(),
-                        false,
-                        "An unexpected error occurred. Please try again later",
-                        null,
-                        null));
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        log.error("Unhandled exception: {}", ex.getMessage(), ex);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("An unexpected error occurred. Please try again later"));
     }
 }
