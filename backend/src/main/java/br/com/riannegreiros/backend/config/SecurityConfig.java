@@ -33,11 +33,14 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter securityFilter;
     private final CookieAuthenticationFilter cookieAuthenticationFilter;
+    private final OAuth2SuccessHandler oauth2SuccessHandler;
 
     public SecurityConfig(JwtAuthenticationFilter securityFilter,
-            CookieAuthenticationFilter cookieAuthenticationFilter) {
+            CookieAuthenticationFilter cookieAuthenticationFilter,
+            OAuth2SuccessHandler oauth2SuccessHandler) {
         this.securityFilter = securityFilter;
         this.cookieAuthenticationFilter = cookieAuthenticationFilter;
+        this.oauth2SuccessHandler = oauth2SuccessHandler;
     }
 
     @Bean
@@ -76,7 +79,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
 
                 .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl(frontendUrl + "/profile", true)
+                        .successHandler(oauth2SuccessHandler)
                         .failureUrl(frontendUrl + "/login?error=true"))
 
                 .logout(logout -> logout
