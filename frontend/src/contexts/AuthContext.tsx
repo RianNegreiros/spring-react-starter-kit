@@ -42,33 +42,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser({
           id: userData.id || userData.userId || userData.sub,
           email: userData.email,
-          firstName: userData.firstName || userData.given_name || '',
+          firstName: userData.firstName || userData.given_name || userData.name || '',
           lastName: userData.lastName || userData.family_name || '',
           avatar_url: userData.avatarUrl || userData.avatar_url || userData.picture,
         })
+        localStorage.setItem('isAuthenticated', 'true')
         setError(null)
-      } else if (response.status !== 401) {
-        console.error('Auth error:', response.status)
+      } else {
         setUser(null)
+        localStorage.removeItem('isAuthenticated')
       }
     } catch (error) {
-      console.error('Auth fetch failed:', error)
       setUser(null)
+      localStorage.removeItem('isAuthenticated')
     } finally {
       setIsLoading(false)
     }
   }
 
   useEffect(() => {
-    const hasAuth = document.cookie.includes('session') || 
-                   document.cookie.includes('token') ||
-                   localStorage.getItem('isAuthenticated') === 'true'
-    
-    if (hasAuth) {
-      fetchCurrentUser()
-    } else {
-      setIsLoading(false)
-    }
+    fetchCurrentUser()
   }, [])
 
   const login = async (email: string, password: string) => {
@@ -89,7 +82,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       await fetchCurrentUser()
-      localStorage.setItem('isAuthenticated', 'true')
       navigate('/profile')
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Login failed')
@@ -126,18 +118,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = async () => {
-    setError(null)
-
     try {
       await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       })
     } catch (error) {
-      console.error('Logout error:', error)
     } finally {
       setUser(null)
       localStorage.removeItem('isAuthenticated')
+      setError(null)
       navigate('/login')
     }
   }
