@@ -54,19 +54,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = async (email: string, password: string) => {
-    setIsLoading(true)
     setError(null)
 
     try {
-      const userData = await loginService(email, password)
-      setUser(userData)
-      navigate('/profile')
+      await loginService(email, password)
+      const userData = await getCurrentUser()
+      if (userData) {
+        setUser(userData)
+        navigate('/profile')
+      } else {
+        throw new Error('Failed to load user data after login')
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Login failed'
       handleError(message)
       throw err
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -76,7 +78,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     lastName: string,
     password: string
   ) => {
-    setIsLoading(true)
     setError(null)
 
     try {
@@ -89,8 +90,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const message = err instanceof Error ? err.message : 'Registration failed'
       handleError(message)
       throw err
-    } finally {
-      setIsLoading(false)
     }
   }
 
