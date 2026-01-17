@@ -1,9 +1,12 @@
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Database, Layout, Shield, Zap } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 import FeatureCard from './FeatureCard'
 
 export default function HomePage() {
+  const { user } = useAuth()
+
   return (
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -40,26 +43,37 @@ export default function HomePage() {
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Link to="/register">
-                <Button
-                  size="lg"
-                  className="w-full sm:w-auto gap-2 font-semibold px-8"
-                >
-                  Get Started
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
-              <Link to="/login">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full sm:w-auto px-8 font-semibold bg-transparent border-border hover:bg-accent hover:border-primary/30"
-                >
-                  Sign In
-                </Button>
-              </Link>
-            </div>
+            {!user ? (
+              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                <Link to="/register">
+                  <Button
+                    size="lg"
+                    className="w-full sm:w-auto gap-2 font-semibold px-8"
+                  >
+                    Get Started
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+                <Link to="/login">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full sm:w-auto px-8 font-semibold bg-transparent border-border hover:bg-accent hover:border-primary/30"
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="pt-4">
+                <Link to="/profile">
+                  <Button size="lg" className="gap-2 font-semibold px-8">
+                    Go to Profile
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
