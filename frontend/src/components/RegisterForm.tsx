@@ -4,16 +4,17 @@ import type React from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Mail, Lock, User, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 type RegisterFormProps = React.ComponentProps<'div'>
 
 export function RegisterForm({ className, ...props }: RegisterFormProps) {
-  const { register, isLoading } = useAuth()
+  const { register, isLoading, error, clearError } = useAuth()
   const [email, setEmail] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -21,25 +22,75 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [localError, setLocalError] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  useEffect(() => {
+    if (error) {
+      toast.error('Registration failed', {
+        description: error,
+      })
+      clearError()
+    }
+  }, [error, clearError])
+
+  const validateForm = (): boolean => {
     setLocalError('')
 
-    if (password !== confirmPassword) {
-      setLocalError('Passwords do not match')
-      return
+    if (!firstName.trim()) {
+      setLocalError('First name is required')
+      return false
+    }
+
+    if (!lastName.trim()) {
+      setLocalError('Last name is required')
+      return false
+    }
+
+    if (!email.trim()) {
+      setLocalError('Email is required')
+      return false
+    }
+
+    if (!email.includes('@')) {
+      setLocalError('Please enter a valid email address')
+      return false
+    }
+
+    if (!password) {
+      setLocalError('Password is required')
+      return false
     }
 
     if (password.length < 6) {
       setLocalError('Password must be at least 6 characters')
+      return false
+    }
+
+    if (!confirmPassword) {
+      setLocalError('Please confirm your password')
+      return false
+    }
+
+    if (password !== confirmPassword) {
+      setLocalError('Passwords do not match')
+      return false
+    }
+
+    return true
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!validateForm()) {
       return
     }
 
     try {
       await register(email, firstName, lastName, password)
-    } catch (err) {
-      console.log(err)
-    }
+    } catch {}
+  }
+
+  const clearErrors = () => {
+    setLocalError('')
   }
 
   return (
@@ -68,7 +119,10 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
                   type="text"
                   placeholder="John"
                   value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  onChange={(e) => {
+                    setFirstName(e.target.value)
+                    clearErrors()
+                  }}
                   required
                   disabled={isLoading}
                   className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/20"
@@ -90,7 +144,10 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
                   type="text"
                   placeholder="Doe"
                   value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  onChange={(e) => {
+                    setLastName(e.target.value)
+                    clearErrors()
+                  }}
                   required
                   disabled={isLoading}
                   className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/20"
@@ -113,7 +170,10 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  clearErrors()
+                }}
                 required
                 disabled={isLoading}
                 className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/20"
@@ -135,7 +195,10 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
                 type="password"
                 placeholder="Min. 6 characters"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  clearErrors()
+                }}
                 required
                 disabled={isLoading}
                 className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/20"
@@ -157,7 +220,10 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
                 type="password"
                 placeholder="Confirm your password"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value)
+                  clearErrors()
+                }}
                 required
                 disabled={isLoading}
                 className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/20"

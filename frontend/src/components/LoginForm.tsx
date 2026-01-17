@@ -5,23 +5,65 @@ import type React from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { Mail, Lock, AlertCircle } from 'lucide-react'
+import { toast } from 'sonner'
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const { login, isLoading } = useAuth()
+  const { login, isLoading, error, clearError } = useAuth()
   const [searchParams] = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [validationError, setValidationError] = useState('')
   const oauthError = searchParams.get('error') === 'true'
+
+  useEffect(() => {
+    if (error) {
+      toast.error('Login failed', {
+        description: error,
+      })
+      clearError()
+    }
+  }, [error, clearError])
+
+  const validateForm = (): boolean => {
+    setValidationError('')
+
+    if (!email.trim()) {
+      setValidationError('Email is required')
+      return false
+    }
+
+    if (!email.includes('@')) {
+      setValidationError('Please enter a valid email address')
+      return false
+    }
+
+    if (!password) {
+      setValidationError('Password is required')
+      return false
+    }
+
+    if (password.length < 6) {
+      setValidationError('Password must be at least 6 characters')
+      return false
+    }
+
+    return true
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!validateForm()) {
+      return
+    }
+
     try {
       await login(email, password)
     } catch {}
@@ -45,6 +87,13 @@ export function LoginForm({
           </div>
         )}
 
+        {validationError && (
+          <div className="mb-6 p-4 flex items-start gap-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+            <span>{validationError}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <label
@@ -60,7 +109,10 @@ export function LoginForm({
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  setValidationError('')
+                }}
                 required
                 disabled={isLoading}
                 className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/20"
@@ -89,7 +141,10 @@ export function LoginForm({
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  setValidationError('')
+                }}
                 required
                 disabled={isLoading}
                 className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/20"

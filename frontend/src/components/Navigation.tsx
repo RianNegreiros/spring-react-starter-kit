@@ -61,7 +61,7 @@ export default function Navigation() {
                   <ThemeToggle />
                   <div className="flex items-center gap-3">
                     <Avatar className="h-8 w-8 ring-2 ring-primary/20">
-                      {user.avatar_url && (
+                      {user?.avatar_url && (
                         <AvatarImage
                           src={user.avatar_url || '/placeholder.svg'}
                           alt={
@@ -70,11 +70,11 @@ export default function Navigation() {
                         />
                       )}
                       <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
-                        {(user.firstName || user.email)[0].toUpperCase()}
+                        {(user?.firstName || user?.email || '?')[0].toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <span className="text-sm text-foreground font-medium">
-                      {user.firstName}
+                      {user?.firstName}
                     </span>
                   </div>
                   <Button
@@ -141,16 +141,16 @@ export default function Navigation() {
                 <div className="pt-2 border-t border-border flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
-                      {user.avatar_url && (
+                      {user?.avatar_url && (
                         <AvatarImage
                           src={user.avatar_url || '/placeholder.svg'}
                         />
                       )}
                       <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                        {(user.firstName || user.email)[0].toUpperCase()}
+                        {(user?.firstName || user?.email || '?')[0].toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm">{user.firstName}</span>
+                    <span className="text-sm">{user?.firstName}</span>
                   </div>
                   <Button variant="ghost" size="sm" onClick={handleLogout}>
                     <LogOut className="w-4 h-4" />
