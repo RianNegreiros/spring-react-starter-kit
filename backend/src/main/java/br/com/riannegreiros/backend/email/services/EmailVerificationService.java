@@ -1,4 +1,4 @@
-package br.com.riannegreiros.backend.users.service;
+package br.com.riannegreiros.backend.email.services;
 
 import java.util.Optional;
 
@@ -7,13 +7,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import br.com.riannegreiros.backend.config.TokenConfig;
+import br.com.riannegreiros.backend.email.VerificationCode;
+import br.com.riannegreiros.backend.email.repository.VerificationCodeRepository;
+import br.com.riannegreiros.backend.email.request.EmailVerificationRequest;
+import br.com.riannegreiros.backend.email.request.ResendVerificationCodeRequest;
+import br.com.riannegreiros.backend.email.response.EmailVerificationResponse;
 import br.com.riannegreiros.backend.users.User;
-import br.com.riannegreiros.backend.users.VerificationCode;
-import br.com.riannegreiros.backend.users.dto.request.EmailVerificationRequest;
-import br.com.riannegreiros.backend.users.dto.request.ResendVerificationCodeRequest;
-import br.com.riannegreiros.backend.users.dto.response.EmailVerificationResponse;
 import br.com.riannegreiros.backend.users.repository.UserRepository;
-import br.com.riannegreiros.backend.users.repository.VerificationCodeRepository;
 import br.com.riannegreiros.backend.util.exceptions.UserNotFoundException;
 import br.com.riannegreiros.backend.util.exceptions.VerificationCodeNotFoundException;
 import br.com.riannegreiros.backend.util.exceptions.VerificationException;

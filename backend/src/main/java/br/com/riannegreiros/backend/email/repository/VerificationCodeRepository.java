@@ -1,10 +1,10 @@
-package br.com.riannegreiros.backend.users.repository;
+package br.com.riannegreiros.backend.email.repository;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import br.com.riannegreiros.backend.users.VerificationCode;
+import br.com.riannegreiros.backend.email.VerificationCode;
 
 public interface VerificationCodeRepository extends JpaRepository<VerificationCode, Long> {
     Optional<VerificationCode> findByEmailAndCode(String email, String code);

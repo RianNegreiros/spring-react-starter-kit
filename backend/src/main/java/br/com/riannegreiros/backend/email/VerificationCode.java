@@ -1,4 +1,4 @@
-package br.com.riannegreiros.backend.users;
+package br.com.riannegreiros.backend.email;
 
 import java.time.LocalDateTime;
 import java.util.Random;

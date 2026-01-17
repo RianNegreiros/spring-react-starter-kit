@@ -8,14 +8,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.com.riannegreiros.backend.config.JWTUserData;
+import br.com.riannegreiros.backend.email.VerificationCode;
+import br.com.riannegreiros.backend.email.repository.VerificationCodeRepository;
+import br.com.riannegreiros.backend.email.services.EmailService;
 import br.com.riannegreiros.backend.users.User;
-import br.com.riannegreiros.backend.users.VerificationCode;
 import br.com.riannegreiros.backend.users.dto.request.UserRegisterRequest;
 import br.com.riannegreiros.backend.users.dto.request.UserUpdateRequest;
 import br.com.riannegreiros.backend.users.dto.response.UserRegisterResponse;
 import br.com.riannegreiros.backend.users.dto.response.UserResponse;
 import br.com.riannegreiros.backend.users.repository.UserRepository;
-import br.com.riannegreiros.backend.users.repository.VerificationCodeRepository;
 import br.com.riannegreiros.backend.util.exceptions.AuthenticationException;
 import br.com.riannegreiros.backend.util.exceptions.EmailAlreadyExistsException;
 import br.com.riannegreiros.backend.util.exceptions.UserNotFoundException;

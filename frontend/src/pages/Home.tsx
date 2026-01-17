@@ -10,7 +10,7 @@ export default function HomePage() {
       <div className="relative overflow-hidden">
         {/* Subtle gradient glow effect */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-150 bg-primary/5 rounded-full blur-3xl" />
         </div>
 
         <div className="relative max-w-6xl mx-auto px-6 pt-24 pb-20">

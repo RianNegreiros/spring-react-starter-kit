@@ -1,4 +1,4 @@
-package br.com.riannegreiros.backend.users.service;
+package br.com.riannegreiros.backend.email.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;

@@ -34,7 +34,7 @@ export default function VerifyEmailPage() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/auth/verify-email`,
+        `${import.meta.env.VITE_API_URL}/email/verify-email`,
         {
           method: 'POST',
           credentials: 'include',
@@ -65,7 +65,7 @@ export default function VerifyEmailPage() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/auth/resend-verification-code`,
+        `${import.meta.env.VITE_API_URL}/email/resend-verification-code`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
