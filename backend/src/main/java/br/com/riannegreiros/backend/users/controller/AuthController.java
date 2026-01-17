@@ -2,20 +2,21 @@ package br.com.riannegreiros.backend.users.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import br.com.riannegreiros.backend.users.dto.request.LoginRequest;
 import br.com.riannegreiros.backend.users.dto.request.UserRegisterRequest;
 import br.com.riannegreiros.backend.users.dto.response.LoginResponse;
 import br.com.riannegreiros.backend.users.dto.response.UserRegisterResponse;
 import br.com.riannegreiros.backend.users.service.AuthService;
 import br.com.riannegreiros.backend.users.service.UserService;
+import br.com.riannegreiros.backend.util.exceptions.AuthenticationException;
+import br.com.riannegreiros.backend.util.exceptions.EmailAlreadyExistsException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,7 +46,6 @@ public class AuthController {
         if (oauthUser != null) {
             return ResponseEntity.ok(oauthUser.getAttributes());
         }
-
         return userService.getCurrentUser()
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
@@ -53,19 +53,30 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request,
-            HttpServletResponse response) {
+            HttpServletRequest httpRequest, HttpServletResponse response) {
         log.info("Login request received for email: {}", request.email());
 
-        LoginResponse loginResponse = authService.authenticate(request);
+        try {
+            httpRequest.getSession().invalidate();
+        } catch (Exception e) {
+            throw new AuthenticationException("Failed to invalidate session");
+        }
+        SecurityContextHolder.clearContext();
 
-        Cookie cookie = new Cookie("auth_token", loginResponse.token());
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false);
-        cookie.setMaxAge(86400);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        try {
+            LoginResponse loginResponse = authService.authenticate(request);
 
-        return ResponseEntity.ok(loginResponse);
+            Cookie cookie = new Cookie("auth_token", loginResponse.token());
+            cookie.setHttpOnly(true);
+            cookie.setSecure(false);
+            cookie.setMaxAge(86400);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+
+            return ResponseEntity.ok(loginResponse);
+        } catch (Exception e) {
+            throw new AuthenticationException("Invalid credentials or authentication failed");
+        }
     }
 
     @PostMapping("/register")
@@ -74,23 +85,30 @@ public class AuthController {
 
         log.info("Register attempt for email={}", request.email());
 
-        UserRegisterResponse response = userService.registerUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            UserRegisterResponse response = userService.registerUser(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (EmailAlreadyExistsException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AuthenticationException("Registration failed: " + e.getMessage());
+        }
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(
-            HttpServletRequest request,
-            HttpServletResponse response) {
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+        Cookie cookie = new Cookie("auth_token", "");
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
 
-        Cookie authCookie = new Cookie("auth_token", "");
-        authCookie.setMaxAge(0);
-        authCookie.setPath("/");
-        authCookie.setHttpOnly(true);
-        response.addCookie(authCookie);
+        try {
+            request.getSession().invalidate();
+        } catch (Exception e) {
+        }
 
         SecurityContextHolder.clearContext();
-
         return ResponseEntity.noContent().build();
     }
 }
