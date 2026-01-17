@@ -1,8 +1,7 @@
-'use client'
-
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+import { ThemeToggle } from './ThemeToggle'
 import { useAuth } from '@/hooks/useAuth'
 import { LogOut, Menu, X } from 'lucide-react'
 import { useState } from 'react'
@@ -59,6 +58,7 @@ export default function Navigation() {
                   Profile
                 </Link>
                 <div className="flex items-center gap-3 pl-4 border-l border-border">
+                  <ThemeToggle />
                   <div className="flex items-center gap-3">
                     <Avatar className="h-8 w-8 ring-2 ring-primary/20">
                       {user.avatar_url && (
@@ -101,6 +101,7 @@ export default function Navigation() {
                 <Link to="/register">
                   <Button size="sm">Get Started</Button>
                 </Link>
+                <ThemeToggle />
               </div>
             ) : null}
           </div>
