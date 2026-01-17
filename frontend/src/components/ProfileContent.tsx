@@ -1,26 +1,23 @@
-import { useState, useEffect } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { useAuth } from '@/hooks/useAuth';
+'use client'
+
+import type React from 'react'
+
+import { useState, useEffect } from 'react'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Loader2, User, Mail } from 'lucide-react'
+import { toast } from 'sonner'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function ProfileContent() {
-  const { user, refreshUser } = useAuth();
-  const [isUpdating, setIsUpdating] = useState(false);
+  const { user, refreshUser } = useAuth()
+  const [isUpdating, setIsUpdating] = useState(false)
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
-  });
+  })
 
   useEffect(() => {
     if (user) {
@@ -28,38 +25,38 @@ export default function ProfileContent() {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         email: user.email || '',
-      });
+      })
     }
-  }, [user]);
+  }, [user])
 
-  if (!user) return null;
+  if (!user) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!formData.firstName.trim() || !formData.lastName.trim()) {
       toast.error('Validation error', {
         description: 'First name and last name are required',
-      });
-      return;
+      })
+      return
     }
 
     if (!formData.email.trim()) {
       toast.error('Validation error', {
         description: 'Email is required',
-      });
-      return;
+      })
+      return
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(formData.email)) {
       toast.error('Validation error', {
         description: 'Please enter a valid email address',
-      });
-      return;
+      })
+      return
     }
 
-    setIsUpdating(true);
+    setIsUpdating(true)
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/user/profile`,
@@ -73,67 +70,73 @@ export default function ProfileContent() {
             email: formData.email.trim(),
           }),
         }
-      );
+      )
 
       if (response.ok) {
-        await refreshUser();
+        await refreshUser()
         toast.success('Profile updated', {
           description: 'Your profile has been updated successfully',
-        });
+        })
       } else {
         const errorData = await response
           .json()
-          .catch(() => ({ message: 'Update failed' }));
+          .catch(() => ({ message: 'Update failed' }))
 
         if (response.status === 400) {
           toast.error('Invalid data', {
             description:
               errorData.message || 'Please check your input and try again',
-          });
+          })
         } else if (response.status === 401) {
           toast.error('Authentication required', {
             description: 'Please log in again to continue',
-          });
+          })
         } else if (response.status === 409) {
           toast.error('Email already exists', {
             description: 'This email is already in use by another account',
-          });
+          })
         } else {
           toast.error('Update failed', {
             description:
               errorData.message ||
               'An error occurred while updating your profile',
-          });
+          })
         }
       }
     } catch (error) {
-      console.error('Profile update error:', error);
+      console.error('Profile update error:', error)
       toast.error('Update failed', {
         description:
           'Network error. Please check your connection and try again.',
-      });
+      })
     } finally {
-      setIsUpdating(false);
+      setIsUpdating(false)
     }
-  };
+  }
 
   const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Personal Information</CardTitle>
-        <CardDescription>
+    <div className="rounded-xl border border-border bg-card/50 backdrop-blur-sm p-8">
+      <div className="mb-8">
+        <h3 className="text-xl font-semibold text-foreground mb-2">
+          Personal Information
+        </h3>
+        <p className="text-sm text-muted-foreground">
           Update your personal details and profile information.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="firstName" className="text-foreground">
+              First Name
+            </Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 id="firstName"
                 value={formData.firstName}
@@ -141,10 +144,16 @@ export default function ProfileContent() {
                 required
                 disabled={isUpdating}
                 placeholder="John"
+                className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/20"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="lastName" className="text-foreground">
+              Last Name
+            </Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 id="lastName"
                 value={formData.lastName}
@@ -152,10 +161,16 @@ export default function ProfileContent() {
                 required
                 disabled={isUpdating}
                 placeholder="Doe"
+                className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/20"
               />
             </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="email">Email</Label>
+          </div>
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="email" className="text-foreground">
+              Email
+            </Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 id="email"
                 type="email"
@@ -164,21 +179,22 @@ export default function ProfileContent() {
                 required
                 disabled={isUpdating}
                 placeholder="john.doe@example.com"
+                className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/20"
               />
             </div>
           </div>
-          <Button type="submit" disabled={isUpdating}>
-            {isUpdating ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Updating...
-              </>
-            ) : (
-              'Update Profile'
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  );
+        </div>
+        <Button type="submit" disabled={isUpdating} className="font-semibold">
+          {isUpdating ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Updating...
+            </>
+          ) : (
+            'Update Profile'
+          )}
+        </Button>
+      </form>
+    </div>
+  )
 }

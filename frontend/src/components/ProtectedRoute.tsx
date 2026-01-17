@@ -1,13 +1,13 @@
-import { useAuth } from '@/hooks/useAuth';
-import { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth'
+import { ReactNode } from 'react'
+import { Navigate } from 'react-router-dom'
 
 interface ProtectedRouteProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading } = useAuth()
 
   if (isLoading) {
     return (
@@ -17,12 +17,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
           <p className="mt-2 text-sm text-muted-foreground">Loading...</p>
         </div>
       </div>
-    );
+    )
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace />
   }
 
-  return <>{children}</>;
+  return <>{children}</>
 }

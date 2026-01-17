@@ -1,12 +1,12 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
-import Navigation from './components/Navigation';
-import HomePage from './pages/Home';
-import LoginPage from './pages/Login';
-import RegisterPage from './pages/Register';
-import VerifyEmailPage from './pages/VerifyEmail';
-import ProfilePage from './pages/Profile';
-import './index.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext'
+import Navigation from './components/Navigation'
+import HomePage from './pages/Home'
+import LoginPage from './pages/Login'
+import RegisterPage from './pages/Register'
+import VerifyEmailPage from './pages/VerifyEmail'
+import ProfilePage from './pages/Profile'
+import './index.css'
 
 function App() {
   return (
@@ -22,7 +22,7 @@ function App() {
         </Routes>
       </AuthProvider>
     </BrowserRouter>
-  );
+  )
 }
 
-export default App;
+export default App
