@@ -97,3 +97,49 @@ export async function logout(): Promise<void> {
     console.error('logout error:', error)
   }
 }
+
+export async function forgotPassword(email: string): Promise<void> {
+  const response = await apiCall('/user/password/forgot', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  })
+
+  if (!response.ok) {
+    const errorData = await parseJsonSafe(response)
+    const errorMessage = extractErrorMessage(errorData)
+    throw new Error(errorMessage)
+  }
+}
+
+export async function validateResetCode(
+  email: string,
+  code: string
+): Promise<void> {
+  const response = await apiCall('/user/password/validate-code', {
+    method: 'POST',
+    body: JSON.stringify({ email, code }),
+  })
+
+  if (!response.ok) {
+    const errorData = await parseJsonSafe(response)
+    const errorMessage = extractErrorMessage(errorData)
+    throw new Error(errorMessage)
+  }
+}
+
+export async function resetPassword(
+  email: string,
+  code: string,
+  newPassword: string
+): Promise<void> {
+  const response = await apiCall('/user/password/reset', {
+    method: 'POST',
+    body: JSON.stringify({ email, code, newPassword }),
+  })
+
+  if (!response.ok) {
+    const errorData = await parseJsonSafe(response)
+    const errorMessage = extractErrorMessage(errorData)
+    throw new Error(errorMessage)
+  }
+}

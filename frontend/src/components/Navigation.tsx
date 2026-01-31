@@ -70,7 +70,9 @@ export default function Navigation() {
                         />
                       )}
                       <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
-                        {(user?.firstName || user?.email || '?')[0].toUpperCase()}
+                        {(user?.firstName ||
+                          user?.email ||
+                          '?')[0].toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <span className="text-sm text-foreground font-medium">
@@ -147,7 +149,9 @@ export default function Navigation() {
                         />
                       )}
                       <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                        {(user?.firstName || user?.email || '?')[0].toUpperCase()}
+                        {(user?.firstName ||
+                          user?.email ||
+                          '?')[0].toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <span className="text-sm">{user?.firstName}</span>

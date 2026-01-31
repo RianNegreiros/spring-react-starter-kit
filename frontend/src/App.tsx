@@ -7,6 +7,7 @@ import HomePage from './pages/Home'
 import LoginPage from './pages/Login'
 import RegisterPage from './pages/Register'
 import VerifyEmailPage from './pages/VerifyEmail'
+import ResetPasswordPage from './pages/ResetPassword'
 import ProfilePage from './pages/Profile'
 import { ProtectedRoute, PublicRoute } from './components/ProtectedRoute'
 import './index.css'
@@ -32,6 +33,14 @@ function App() {
               element={
                 <PublicRoute>
                   <RegisterPage />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/reset-password"
+              element={
+                <PublicRoute>
+                  <ResetPasswordPage />
                 </PublicRoute>
               }
             />
