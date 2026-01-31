@@ -139,4 +139,12 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse("An unexpected error occurred. Please try again later"));
     }
+
+    @ExceptionHandler(PasswordResetTokenExpiredException.class)
+    public ResponseEntity<ErrorResponse> handlePasswordResetTokenExpired(PasswordResetTokenExpiredException ex) {
+        log.warn("Password reset token error: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("Invalid or expired password reset link"));
+    }
 }
