@@ -16,12 +16,12 @@ Content-Type: application/json
 }
 
 ### Verify email
-POST {{baseURL}}/auth/verify-email
+POST {{baseURL}}/email/verify-email
 Content-Type: application/json
 
 {
   "email": "{{email}}",
-  "code": "218421"
+  "code": "905093"
 }
 
 ### Resend code
@@ -79,3 +79,29 @@ Accept: application/json
 POST {{baseURL}}/auth/logout
 Authorization: Bearer {{login.response.body.data.token}}
 Accept: application/json
+
+
+### Reset/Forgot Password request
+POST {{baseURL}}/user/password/forgot
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+
+### Reset/Forgot Password code validation
+POST {{baseURL}}/user/password/validate-code
+Content-Type: application/json
+
+{
+  "code": "788272"
+}
+
+### Reset the password
+POST {{baseURL}}/user/password/reset
+Content-Type: application/json
+
+{
+  "code": "788272",
+  "newPassword": "password1234"
+}

@@ -9,7 +9,11 @@ interface RouteGuardProps {
   redirectTo: string
 }
 
-export function RouteGuard({ children, requireAuth, redirectTo }: RouteGuardProps) {
+export function RouteGuard({
+  children,
+  requireAuth,
+  redirectTo,
+}: RouteGuardProps) {
   const { user, isLoading } = useAuth()
 
   if (isLoading) return <LoadingSpinner />

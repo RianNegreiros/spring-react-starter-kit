@@ -128,12 +128,12 @@ export function LoginForm({
               >
                 Password
               </label>
-              <a
-                href="#"
+              <Link
+                to="/reset-password"
                 className="text-sm text-primary hover:text-primary/80 transition-colors"
               >
                 Forgot password?
-              </a>
+              </Link>
             </div>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

@@ -30,7 +30,7 @@ public class EmailController {
         this.emailVerificationService = emailVerificationService;
     }
 
-    @PostMapping("/verify")
+    @PostMapping("/verify-email")
     public ResponseEntity<EmailVerificationResponse> verifyEmail(
             @Valid @RequestBody EmailVerificationRequest request,
             HttpServletResponse response) {

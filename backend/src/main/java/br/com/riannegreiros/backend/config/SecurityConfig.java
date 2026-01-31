@@ -66,8 +66,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/register").permitAll()
-                        .requestMatchers("/api/auth/verify-email").permitAll()
-                        .requestMatchers("/api/auth/resend-verification-code").permitAll()
+                        .requestMatchers("/api/email/**").permitAll()
+                        .requestMatchers("/api/user/password/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
                         .anyRequest().authenticated())
