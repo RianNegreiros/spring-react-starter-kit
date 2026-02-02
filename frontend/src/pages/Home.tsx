@@ -99,7 +99,7 @@ export default function HomePage() {
           <FeatureCard
             icon={<Shield className="w-6 h-6" />}
             title="Secure Auth"
-            description="JWT + OAuth2 authentication with Spring Security"
+            description="JWT + OAuth2 with email verification and password reset"
           />
           <FeatureCard
             icon={<Zap className="w-6 h-6" />}
@@ -109,7 +109,7 @@ export default function HomePage() {
           <FeatureCard
             icon={<Layout className="w-6 h-6" />}
             title="Modern UI"
-            description="Tailwind CSS + shadcn/ui for beautiful interfaces"
+            description="Tailwind CSS + shadcn/ui with dark/light theme support"
           />
         </div>
       </div>
