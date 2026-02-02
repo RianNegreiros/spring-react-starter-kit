@@ -57,6 +57,16 @@ services:
       networks:
       - app-network
 
+  caddy:
+    image: caddy:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    depends_on:
+      - backend
+      - frontend
+
 volumes:
   postgres_data:
 
